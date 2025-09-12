@@ -43,6 +43,7 @@ export default function CustomRoutes() {
       <Route path="/loja/meus/pedidos/" element={<MeusPedidos />} />
       {/* <Route path="loja/sobrenos/" element={<SobreNosSite />} /> */}
       <Route path="/detalhes/" element={<DetalhesProduto />} />
+
       {isAuthenticated ? (
         hasAccess(userData[0]?.cargo) ? (
           <>

@@ -166,6 +166,13 @@ export const NavSite: React.FC<Props> = ({ searchTerm, style }) => {
         <Store className="size-4" />
         <span>Sobre Nós</span>
       </Link>
+      <Link
+        to="/caixa/"
+        className="flex items-center gap-2 hover:text-blue-600 transition-colors font-medium"
+      >
+        <Store className="size-4" />
+        <span>Sobre Nós</span>
+      </Link>
       {isAuthenticated ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
