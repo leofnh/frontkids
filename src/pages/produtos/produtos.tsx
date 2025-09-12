@@ -1,0 +1,371 @@
+import { useEffect, useState } from "react";
+import { Main } from "../../components/main";
+import { Nav } from "../../components/nav";
+import { toast, ToastContainer } from "react-toastify";
+import { api } from "../../services/api";
+import { Button } from "../../components/ui/button";
+import { ModalCreateProduct } from "./modalCreateProduct";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { TableBaseProduct } from "./tableProducts";
+import { useData } from "../../components/context";
+import { ModalImportProduct } from "./modalimport";
+import { ModalImage } from "./modalimage";
+import {
+  CondicionalType,
+  ImgProductType,
+  ProductFormData,
+  ProductType,
+  ProdutoCondicional,
+} from "../../components/types";
+import { TableClientCondicional } from "./modalcond";
+import { TableCondicionais } from "./condicionais";
+
+const infoSendSchema = z.object({
+  marca: z.string().min(1),
+  tamanho: z.string().min(1),
+  codigo: z.string().min(1),
+  ref: z.string().min(1),
+  preco: z.string().min(1),
+  custo: z.string().min(1),
+  estoque: z.string().min(1),
+  produto: z.string().min(1),
+  cor: z.string(),
+  descricao: z.string(),
+  sequencia: z.string(),
+  loja: z.boolean(),
+});
+
+type infoSendSchema = z.infer<typeof infoSendSchema>;
+
+export function Produtos() {
+  const { dataProduct, setProduct, imgProduct, setImgProduct } = useData() as {
+    dataProduct: ProductType[];
+    setProduct: React.Dispatch<React.SetStateAction<ProductType[]>>;
+    imgProduct: ImgProductType[];
+    setImgProduct: React.Dispatch<React.SetStateAction<ImgProductType[]>>;
+  };
+  const { register, handleSubmit, setValue, watch } = useForm<infoSendSchema>({
+    resolver: zodResolver(infoSendSchema),
+  });
+
+  const [isModalCond, setModalCond] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [condicionais, setCondicional] = useState<CondicionalType[]>([]);
+  const [produtoCondicional, setProdutoCondicional] = useState<
+    ProdutoCondicional[]
+  >([]);
+  const [isPage, setPage] = useState(1);
+  const [isOpenCreateObject, setCreateObject] = useState(false);
+  //const [valueUpdate, setValueUpdate] = useState(0);
+  const [isModalImport, setModalImport] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState<ProductFormData>({
+    ref: "",
+    loja: false,
+    marca: "",
+    codigo: "",
+    tamanho: "",
+    preco: "",
+    custo: "",
+    estoque: "",
+    produto: "",
+    cor: "",
+    descricao: "",
+    sequencia: "",
+  });
+
+  const [isImgOpen, setImgOpen] = useState(false);
+
+  const closeModalImg = () => {
+    setImgOpen(!isImgOpen);
+  };
+  const dataHeaderProduct = [
+    "produto",
+    "marca",
+    "tamanho",
+    "codigo",
+    "ref",
+    "preco",
+    "custo",
+    "estoque",
+  ];
+
+  const openModalImport = () => {
+    setModalImport(!isModalImport);
+  };
+  const openModal = () => {
+    setCreateObject(!isOpenCreateObject);
+  };
+  const notifySuccess = (text: string) =>
+    toast.success(text, {
+      theme: "light",
+    });
+  const notifyError = (text: string) =>
+    toast.error(text, {
+      theme: "light",
+    });
+
+  function handleFilterProduct(data: infoSendSchema) {
+    setLoading(true);
+    const sendNewProduct = async () => {
+      try {
+        const response = await toast.promise(api.post("api/produtos/", data), {
+          pending: {
+            render: "Carregando...",
+            autoClose: 3000,
+          },
+          success: {
+            render: "Dados enviado com sucesso!",
+            autoClose: 1000,
+          },
+          error: {
+            render: "Erro ao enviar os dados...",
+            autoClose: 1500,
+          },
+        });
+        const newDataResp = response.data;
+        const alertView = newDataResp["msg"];
+        const statusApi = newDataResp["status"];
+        //const newData = newDataResp["dados"];
+        const productsData = newDataResp["dados"];
+        if (statusApi == "erro") {
+          notifyError(alertView);
+        } else if (statusApi == "sucesso") {
+          {
+            /*  const formattedData = {
+            produto: newData["produto"],
+            marca: newData["marca"],
+            preco: newData["preco"].toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+            custo: newData["custo"].toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+            tamanho: newData["tamanho"],
+            codigo: newData["codigo"],
+            ref: newData["ref"],
+            estoque: newData["estoque"],
+            loja: newData["loja"],
+          }; */
+          }
+          //setProduct((prevDataProduct) => [...prevDataProduct, formattedData]);
+          const formatedProducts = productsData.map((product: ProductType) => ({
+            ...product,
+            preco: product.preco.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+            custo: product.custo.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }),
+          }));
+          setProduct(formatedProducts);
+          notifySuccess(alertView);
+        }
+      } catch (error) {
+        notifyError("Houve algum erro na obtenção dos dados.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    sendNewProduct();
+  }
+
+  function handleUpdateEstoque(
+    valueCodigo: string,
+    value: number,
+    produto: string
+  ) {
+    setLoading(true);
+
+    const sendUpdateEstoque = async () => {
+      try {
+        const response = await api.put("api/produtos/", {
+          newEstoque: value,
+          codigo: valueCodigo,
+          produto: produto,
+        });
+        const dataResp = response.data;
+        const status = dataResp["status"];
+        if (status == "erro") {
+          const msg = dataResp["msg"];
+          notifyError(msg);
+        } else {
+          const updateEstoque = dataResp["updateValue"];
+          setProduct((prevProducts) =>
+            prevProducts.map((product) =>
+              product.codigo === valueCodigo
+                ? { ...product, estoque: updateEstoque, produto: produto }
+                : product
+            )
+          );
+        }
+      } catch (error) {
+        notifyError(`Erro ao atualizar o estoque.  ${error}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    sendUpdateEstoque();
+  }
+
+  useEffect(() => {
+    const getCondicional = async () => {
+      try {
+        const response = await api.get("api/adm/condicional/");
+        const status = response.data.status;
+        if (status == "sucesso") {
+          const dados = response.data.dados;
+          const produtos = response.data.dados_produtos;
+          setCondicional(dados);
+          setProdutoCondicional(produtos);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getCondicional();
+  }, [setCondicional, setProdutoCondicional]);
+
+  return (
+    <>
+      <Main className="text-app-text-color">
+        <Nav></Nav>
+        <div className="ml-20">
+          <ToastContainer />
+          <div className="flex mt-4 ml-4 space-x-2">
+            {isPage == 1 && (
+              <>
+                <Button
+                  className="text-app-text-color bg-gray-700 rounded-lg h-7"
+                  onClick={() => {
+                    openModal();
+                    setIsUpdate(false);
+                    setDataUpdate([]);
+                  }}
+                >
+                  Novo Produto
+                </Button>
+
+                <Button
+                  className="text-app-text-color bg-gray-700 rounded-lg h-7"
+                  onClick={openModalImport}
+                >
+                  Importar Produtos
+                </Button>
+              </>
+            )}
+            {isPage == 2 && (
+              <Button
+                className="text-app-text-color bg-gray-700 rounded-lg h-7"
+                onClick={() => {
+                  setModalCond(!isModalCond);
+                }}
+              >
+                {isModalCond ? "Condicionais" : "Nova Condicional"}
+              </Button>
+            )}
+            <Button
+              className="text-app-text-color bg-gray-700 rounded-lg h-7"
+              onClick={() => {
+                if (isPage == 1) {
+                  setPage(2);
+                } else {
+                  setPage(1);
+                  setModalCond(false);
+                }
+              }}
+            >
+              {isPage == 1 ? "Condicionais" : "Estoque"}
+            </Button>
+
+            <ModalCreateProduct
+              isOpen={isOpenCreateObject}
+              closeModal={openModal}
+              descriptionModal={
+                !isUpdate
+                  ? "Preencha todos os campos para cadastrar o produto."
+                  : "Preencha todos os campos para atualizar os produtos."
+              }
+              titleModal={
+                !isUpdate ? "Cadastrando o produto" : "Atualizando o produto."
+              }
+              handleFilterProduct={handleFilterProduct}
+              handleSubmit={handleSubmit}
+              register={register}
+              update={isUpdate}
+              dataUpdate={dataUpdate}
+              setValue={setValue}
+              watch={watch}
+            />
+
+            <ModalImportProduct
+              isOpen={isModalImport}
+              closeModal={openModalImport}
+              descriptionModal="Importação de produtos"
+              titleModal="Utilize o modelo de importação para garantir a importação correta."
+              notifyError={notifyError}
+              notifySuccess={notifySuccess}
+            />
+          </div>
+        </div>
+        <div className="mt-4 m-20">
+          {isPage == 2 && (
+            <>
+              {isModalCond ? (
+                <>
+                  <div>
+                    <TableClientCondicional setCondicional={setCondicional} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <TableCondicionais
+                      condicionais={condicionais}
+                      produtos={produtoCondicional}
+                      setProdutosCondicionais={() => setProdutoCondicional}
+                    />
+                  </div>
+                </>
+              )}
+            </>
+          )}
+          {isPage == 1 && (
+            <TableBaseProduct
+              dataBody={dataProduct}
+              dataHeader={dataHeaderProduct}
+              handleUpdate={handleUpdateEstoque}
+              notifySuccess={notifySuccess}
+              notifyError={notifyError}
+              setUpdate={setIsUpdate}
+              isOpen={openModal}
+              setDataUpdate={setDataUpdate}
+              imgProduct={imgProduct}
+              setImgProduct={setImgProduct}
+              isImgOpen={isImgOpen}
+              setImgOpen={setImgOpen}
+            />
+          )}
+          <ModalImage
+            isOpen={isImgOpen}
+            closeModal={closeModalImg}
+            titleModal="Adicione imagens ao produto"
+            descriptionModal="Faça upload antes de enviar o link."
+            notifyError={notifyError}
+            notifySuccess={notifySuccess}
+            imgProduct={imgProduct}
+            dataUpdate={dataUpdate}
+          />
+        </div>
+      </Main>
+    </>
+  );
+}
