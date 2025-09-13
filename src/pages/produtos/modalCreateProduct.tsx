@@ -116,119 +116,130 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      //   overlayClassName="fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+      overlayClassName="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     >
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border bg-white p-6 shadow-lg sm:rounded-lg overflow-y-auto max-h-[90vh] dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex flex-col space-y-1.5 text-center sm:text-left gap-4">
-          <div className="text-lg font-semibold leading-none tracking-tight">
-            {titleModal}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              {descriptionModal}
-            </div>
+      <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-5xl translate-x-[-50%] translate-y-[-50%] gap-0 border border-brand-200 bg-white rounded-xl shadow-xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 max-h-[95vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-brand-50 to-brown-50 p-6 border-b border-brand-200">
+          <div className="flex flex-col space-y-2">
+            <h2 className="text-xl font-semibold text-brown-800">
+              {titleModal}
+            </h2>
+            <p className="text-sm text-brown-600">{descriptionModal}</p>
           </div>
-          <div>
-            <form
-              onSubmit={handleSubmit(handleFilterProduct)}
-              className="grid grid-cols-1"
-            >
-              <div className="grid grid-cols-2 mt-4 gap-8">
-                <div>
-                  <Label>Nome do Produto</Label>
+        </div>
+
+        {/* Content with scroll */}
+        <div className="p-6 overflow-y-auto max-h-[calc(95vh-140px)]">
+          <form
+            onSubmit={handleSubmit(handleFilterProduct)}
+            className="space-y-8"
+          >
+            {/* Seção 1: Informações principais */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-brown-700 border-b border-brand-200 pb-2">
+                Informações Principais
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Nome do Produto - destaque com mais espaço */}
+                <div className="space-y-2 lg:col-span-2">
+                  <Label className="text-brown-700 font-medium">
+                    Nome do Produto *
+                  </Label>
                   <Input
-                    placeholder="Ex: Blusa..."
-                    className="mt-1"
+                    placeholder="Ex: Blusa Feminina..."
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                     {...register("produto")}
                   />
                 </div>
 
+                {/* Configurações da loja */}
                 <div className="space-y-2">
-                  <Label>Ativar na loja</Label>
-                  <div className="flex items-center gap-2">
-                    <p>
+                  <Label className="text-brown-700 font-medium">
+                    Configurações da Loja
+                  </Label>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
                       <Switch
                         checked={loja}
                         onCheckedChange={handleSwitchChange}
                       />
-                    </p>
-                    <div>
+                      <span className="text-sm text-brown-600">
+                        Ativar na loja online
+                      </span>
+                    </div>
+                    {loja && (
                       <Input
-                        placeholder="Sequência, Ex: 1"
+                        placeholder="Sequência (Ex: 1)"
+                        className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                         {...register("sequencia")}
                       />
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 mt-2 gap-8">
-                <div>
-                  <Label>Marca</Label>
+            {/* Seção 2: Detalhes do produto */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-brown-700 border-b border-brand-200 pb-2">
+                Detalhes do Produto
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Marca */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">Marca</Label>
                   <Input
-                    placeholder="Ex: Arezzo..."
-                    className="mt-1"
+                    placeholder="Ex: Arezzo, Nike..."
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                     {...register("marca")}
                   />
                 </div>
 
-                <div>
-                  <Label>Tamanho</Label>
+                {/* Tamanho */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">Tamanho</Label>
                   <Input
                     {...register("tamanho")}
-                    className="mt-1"
-                    placeholder="Ex: G"
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    placeholder="Ex: G, 40, M"
                   />
                 </div>
 
-                <div>
-                  <Label>Referência</Label>
+                {/* Referência */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">
+                    Referência
+                  </Label>
                   <Input
                     {...register("ref")}
-                    className="mt-1"
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                     placeholder="Ex: A119030024"
                   />
                 </div>
-                <div>
-                  <Label>Preço de Venda</Label>
+
+                {/* Cor */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">
+                    Cor do Produto
+                  </Label>
                   <Input
-                    onInput={handleChangePrice}
-                    value={watch("preco")}
-                    {...register("preco")}
-                    className="mt-1"
-                    placeholder="Ex: 79,90"
+                    {...register("cor")}
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-12"
+                    type="color"
                   />
                 </div>
 
-                <div>
-                  <Label>Custo</Label>
-                  <Input
-                    {...register("custo")}
-                    value={watch("custo")}
-                    className="mt-1"
-                    placeholder="Ex: 39,90"
-                    onInput={handleCustoChange}
-                  />
-                </div>
-
-                <div>
-                  <Label>Estoque</Label>
-                  <Input
-                    type="number"
-                    {...register("estoque")}
-                    className="mt-1"
-                    placeholder="Ex: 1"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 mt-2 gap-8">
-                <div>
-                  <Label>Cor</Label>
-                  <Input {...register("cor")} className="mt-1" type="color" />
-                </div>
-                <div>
-                  <Label>Código de barras</Label>
+                {/* Código de barras */}
+                <div className="space-y-2 md:col-span-2">
+                  <Label className="text-brown-700 font-medium">
+                    Código de Barras
+                  </Label>
                   <Input
                     {...register("codigo")}
-                    className="mt-1"
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                     placeholder="Ex: 7900029868144"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -237,31 +248,94 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                     }}
                   />
                 </div>
+              </div>
+            </div>
 
-                <div className="col-span-2">
-                  <Label>Descrição</Label>
-                  <Textarea {...register("descricao")}></Textarea>
+            {/* Seção 3: Valores e estoque */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-brown-700 border-b border-brand-200 pb-2">
+                Valores e Estoque
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Preço de venda */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">
+                    Preço de Venda *
+                  </Label>
+                  <Input
+                    onInput={handleChangePrice}
+                    value={watch("preco")}
+                    {...register("preco")}
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    placeholder="Ex: 79,90"
+                  />
+                </div>
+
+                {/* Custo */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">Custo *</Label>
+                  <Input
+                    {...register("custo")}
+                    value={watch("custo")}
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    placeholder="Ex: 39,90"
+                    onInput={handleCustoChange}
+                  />
+                </div>
+
+                {/* Estoque */}
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium">
+                    Quantidade em Estoque
+                  </Label>
+                  <Input
+                    type="number"
+                    {...register("estoque")}
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    placeholder="Ex: 10"
+                    min="0"
+                  />
                 </div>
               </div>
+            </div>
+            {/* Seção 4: Descrição */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-brown-700 border-b border-brand-200 pb-2">
+                Descrição do Produto
+              </h3>
 
-              <div className="flex mt-5 flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                <Button
-                  type="button"
-                  className="bg-red-600 rounded-lg hover:bg-red-600 h-7"
-                  onClick={closeModal}
-                >
-                  Fechar
-                </Button>
-
-                <Button
-                  type="submit"
-                  className="bg-green-600 rounded-lg hover:bg-green-600 h-7"
-                >
-                  {!update ? "Cadastrar Produto" : "Atualizar Produto"}
-                </Button>
+              <div className="space-y-2">
+                <Label className="text-brown-700 font-medium">
+                  Descrição Detalhada
+                </Label>
+                <Textarea
+                  {...register("descricao")}
+                  className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 min-h-[100px] resize-none"
+                  placeholder="Descreva detalhadamente o produto, suas características, materiais, etc..."
+                />
               </div>
-            </form>
-          </div>
+            </div>
+
+            {/* Botões de ação */}
+            <div className="flex justify-end space-x-4 pt-6 border-t border-brand-200 bg-white sticky bottom-0">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 min-w-[120px]"
+                onClick={closeModal}
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                type="submit"
+                className="bg-brand-500 hover:bg-brand-600 text-white shadow-md transition-all min-w-[150px]"
+              >
+                {!update ? "Cadastrar Produto" : "Atualizar Produto"}
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </Modal>

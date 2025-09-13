@@ -6,6 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../components/ui/input";
 import { api } from "../../services/api";
 import { useData } from "../../components/context";
+import {
+  UserPlus,
+  User,
+  Phone,
+  Lock,
+  X,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 
 const cadastroSendSchema = z.object({
   caduser: z.string().min(1, "* Campo obrigatório"),
@@ -22,13 +31,9 @@ interface iModalCreateUser {
   descriptionModal: string;
 }
 
-type userDataType = {
-  cargo: string;
-  first_name: string;
-  id: number;
-  last_name: string;
-  username: string;
-};
+interface DataContextType {
+  setDashboard: (data: unknown) => void;
+}
 
 export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
   isOpen,
@@ -36,7 +41,7 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
   titleModal,
   descriptionModal,
 }) => {
-  const { setDashboard } = useData();
+  const { setDashboard } = useData() as DataContextType;
   const {
     register: registerCadastro,
     handleSubmit: handleCadastroSubmit,
@@ -69,100 +74,186 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      overlayClassName="fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+      overlayClassName="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     >
-      <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-slate-200 bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex flex-col space-y-1.5 text-center sm:text-left gap-1">
-          <div className="text-lg font-semibold leading-none tracking-tight">
-            <span>{titleModal}</span>
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              {descriptionModal}
+      {/* Modal Container com Scroll */}
+      <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6">
+        <div className="relative w-full max-w-md max-h-[90vh] overflow-hidden">
+          {/* Modal Content */}
+          <div className="bg-white rounded-2xl border border-brand-200 shadow-2xl shadow-brand-900/10 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
+            {/* Header */}
+            <div className="relative bg-gradient-to-br from-brand-50 to-brown-50 px-6 py-5 border-b border-brand-200 rounded-t-2xl">
+              <button
+                onClick={closeModal}
+                className="absolute right-4 top-4 p-2 rounded-full bg-white/80 hover:bg-white border border-brand-200 text-brown-600 hover:text-brown-800 transition-all duration-200 hover:scale-105"
+              >
+                <X size="18" />
+              </button>
+
+              <div className="flex items-center gap-4 pr-12">
+                <div className="p-3 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl shadow-lg">
+                  <UserPlus size="24" className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-brown-800">
+                    {titleModal}
+                  </h2>
+                  <p className="text-sm text-brown-600 mt-1">
+                    {descriptionModal}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="space-y-[0.8px] text-sm">
-            <form className="space-y-6">
-              <div className="space-y-2">
-                <label
-                  htmlFor="user"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Usuário
-                </label>
+
+            {/* Scrollable Form Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-140px)] scrollbar-thin scrollbar-thumb-brand-400 scrollbar-track-gray-100 hover:scrollbar-thumb-brand-500">
+              <form
+                className="p-6 space-y-6"
+                onSubmit={handleCadastroSubmit(onSubmitCadastro)}
+              >
+                {/* Hidden cargo field */}
                 <Input
                   type="hidden"
                   value="admin"
                   {...registerCadastro("cargo")}
                 />
-                <Input
-                  type="text"
-                  placeholder="ex: Usuario"
-                  className="w-full"
-                  {...registerCadastro("caduser")}
-                />
-                {cadastroErrors.caduser && (
-                  <p className="text-sm text-red-600">
-                    {cadastroErrors.caduser.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="user"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Telefone
-                </label>
-                <Input
-                  type="telefone"
-                  placeholder="3199999-9999"
-                  className="w-full"
-                  {...registerCadastro("telefone")}
-                />
-                {cadastroErrors.telefone && (
-                  <p className="text-sm text-red-600">
-                    {cadastroErrors.telefone.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="password2"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Senha
-                </label>
-                <Input
-                  id="password2"
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full"
-                  {...registerCadastro("cadpassword")}
-                />
-                {cadastroErrors.cadpassword && (
-                  <p className="text-sm text-red-600">
-                    {cadastroErrors.cadpassword.message}
-                  </p>
-                )}
-              </div>
 
-              <div className="flex flex-row-reverse gap-1">
+                {/* Usuário Field */}
+                <div className="space-y-3">
+                  <label
+                    htmlFor="caduser"
+                    className="flex items-center gap-2 text-sm font-semibold text-brown-700"
+                  >
+                    <User size="16" className="text-brand-600" />
+                    Nome de Usuário
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="caduser"
+                      type="text"
+                      placeholder="Digite o nome do usuário..."
+                      className="w-full pl-10 pr-4 py-3 bg-white border-2 border-brand-200 text-brown-800 placeholder-brown-400 rounded-xl focus:border-brand-400 focus:ring-4 focus:ring-brand-200/50 transition-all duration-200"
+                      {...registerCadastro("caduser")}
+                    />
+                    <User
+                      size="18"
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brown-400"
+                    />
+                  </div>
+                  {cadastroErrors.caduser && (
+                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <AlertCircle size="16" />
+                      {cadastroErrors.caduser.message}
+                    </div>
+                  )}
+                </div>
+
+                {/* Telefone Field */}
+                <div className="space-y-3">
+                  <label
+                    htmlFor="telefone"
+                    className="flex items-center gap-2 text-sm font-semibold text-brown-700"
+                  >
+                    <Phone size="16" className="text-brand-600" />
+                    Telefone
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="telefone"
+                      type="tel"
+                      placeholder="(31) 99999-9999"
+                      className="w-full pl-10 pr-4 py-3 bg-white border-2 border-brand-200 text-brown-800 placeholder-brown-400 rounded-xl focus:border-brand-400 focus:ring-4 focus:ring-brand-200/50 transition-all duration-200"
+                      {...registerCadastro("telefone")}
+                    />
+                    <Phone
+                      size="18"
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brown-400"
+                    />
+                  </div>
+                  {cadastroErrors.telefone && (
+                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <AlertCircle size="16" />
+                      {cadastroErrors.telefone.message}
+                    </div>
+                  )}
+                </div>
+
+                {/* Senha Field */}
+                <div className="space-y-3">
+                  <label
+                    htmlFor="cadpassword"
+                    className="flex items-center gap-2 text-sm font-semibold text-brown-700"
+                  >
+                    <Lock size="16" className="text-brand-600" />
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="cadpassword"
+                      type="password"
+                      placeholder="Digite uma senha segura..."
+                      className="w-full pl-10 pr-4 py-3 bg-white border-2 border-brand-200 text-brown-800 placeholder-brown-400 rounded-xl focus:border-brand-400 focus:ring-4 focus:ring-brand-200/50 transition-all duration-200"
+                      {...registerCadastro("cadpassword")}
+                    />
+                    <Lock
+                      size="18"
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-brown-400"
+                    />
+                  </div>
+                  {cadastroErrors.cadpassword && (
+                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <AlertCircle size="16" />
+                      {cadastroErrors.cadpassword.message}
+                    </div>
+                  )}
+                </div>
+
+                {/* Info Box */}
+                <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle
+                      size="20"
+                      className="text-brand-600 mt-0.5 flex-shrink-0"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-brand-800">
+                        Informações importantes:
+                      </p>
+                      <ul className="text-xs text-brand-700 mt-2 space-y-1">
+                        <li>
+                          • O usuário será criado com cargo de administrador
+                        </li>
+                        <li>• Certifique-se de usar um telefone válido</li>
+                        <li>• A senha deve ser segura e confidencial</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Fixed Footer */}
+            <div className="bg-gray-50 border-t border-brand-200 px-6 py-4 rounded-b-2xl">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                 <Button
-                  className="h-7 bg-red-600 hover:bg-red-600"
                   type="button"
                   onClick={closeModal}
+                  className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02]"
                 >
+                  <X size="18" className="mr-2" />
                   Cancelar
                 </Button>
 
                 <Button
-                  className="h-7 bg-green-600 hover:bg-green-600"
-                  type="button"
+                  type="submit"
                   onClick={handleCadastroSubmit(onSubmitCadastro)}
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white rounded-xl font-medium shadow-lg hover:shadow-brand-500/25 transition-all duration-200 hover:scale-[1.02]"
                 >
-                  Cadastrar
+                  <UserPlus size="18" className="mr-2" />
+                  Criar Vendedor
                 </Button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

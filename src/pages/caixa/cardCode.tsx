@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
@@ -170,34 +169,49 @@ export const CardSearchCode: React.FC<iCard> = ({
   }, [setCondicional]);
 
   return (
-    <Card className="bg-app-text-color border-app-text-color text-app-bg-color">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription className="text-gray-200">
+    <Card className="bg-white border-brand-200 shadow-sm">
+      <CardHeader className="bg-gradient-to-r from-brand-50 to-brown-50 border-b border-brand-200">
+        <CardTitle className="text-xl font-semibold text-brown-800">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-brown-600">
           {description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-app-bg-color">
+      <CardContent className="p-6">
         <div className="flex flex-col items-center gap-4 mb-6">
-          <span className="font-medium">Selecione o tipo:</span>
+          <span className="font-medium text-brown-700">Selecione o tipo:</span>
           <RadioGroup
             value={tipo}
             onValueChange={(value: "produto" | "condicional") => setTipo(value)}
             className="flex gap-6"
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 p-3 border border-brand-200 rounded-lg hover:bg-brand-50 transition-colors">
               <RadioGroupItem value="produto" id="produto" />
-              <Label htmlFor="produto">Produto</Label>
+              <Label htmlFor="produto" className="text-brown-700 font-medium">
+                Produto
+              </Label>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 p-3 border border-brand-200 rounded-lg hover:bg-brand-50 transition-colors">
               <RadioGroupItem value="condicional" id="condicional" />
-              <Label htmlFor="condicional">Condicional</Label>
+              <Label
+                htmlFor="condicional"
+                className="text-brown-700 font-medium"
+              >
+                Condicional
+              </Label>
             </div>
           </RadioGroup>
         </div>
-        <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="search-code">Código</Label>
+
+        <div className="space-y-3">
+          <Label
+            htmlFor="search-code"
+            className="text-brown-700 font-medium text-base"
+          >
+            {tipo === "produto" ? "Código do Produto" : "CPF do Cliente"}
+          </Label>
           <Input
             id="search-code"
             list={tipo === "condicional" ? "condicionais" : undefined}
@@ -206,7 +220,7 @@ export const CardSearchCode: React.FC<iCard> = ({
                 ? "Pesquise pelo código de barras..."
                 : "Pesquise pelo CPF..."
             }
-            className="mt-1"
+            className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
             onChange={handleInputChange}
           />
 
@@ -219,22 +233,20 @@ export const CardSearchCode: React.FC<iCard> = ({
               ))}
             </datalist>
           )}
+          <Button
+            onClick={() => {
+              if (tipo === "produto") {
+                handleDataBody();
+              } else {
+                handleCpf();
+              }
+            }}
+            className="w-full bg-brand-500 hover:bg-brand-600 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 mt-4"
+          >
+            {tipo === "produto" ? "Buscar Produto" : "Buscar Cliente"}
+          </Button>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-row-reverse">
-        <Button
-          onClick={() => {
-            if (tipo === "produto") {
-              handleDataBody();
-            } else {
-              handleCpf();
-            }
-          }}
-          className="bg-app-bg-color text-app-text-color hover:bg-app-bg-color/90"
-        >
-          Buscar
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Main } from "../../components/main";
 import { Nav } from "../../components/nav";
 import { CardSearchCode } from "./cardCode";
 import { CardTable } from "./cardTable";
@@ -34,11 +33,25 @@ export function Caixa() {
     });
   return (
     <>
-      <Main className="text-app-text-color">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brown-50">
         <Nav />
-        <div className="p-4 md:p-6">
-          <ToastContainer position="top-left" autoClose={500} />
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-6">
+        <div className="container mx-auto px-4 py-8">
+          <ToastContainer
+            position="top-right"
+            autoClose={500}
+            toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
+          />
+
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-brown-800 mb-2">
+              Ponto de Venda (PDV)
+            </h1>
+            <p className="text-brown-600">
+              Gerencie vendas e processe pagamentos
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
               <CardSearchCode
                 title="Produtos"
@@ -88,7 +101,7 @@ export function Caixa() {
             </div>
           </div>
         </div>
-      </Main>
+      </div>
     </>
   );
 }

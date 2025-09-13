@@ -12,11 +12,11 @@ import { Label } from "@radix-ui/react-label";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
-  Landmark,
+  Smartphone,
   CreditCard,
-  Receipt,
-  WalletCards,
-  Contact,
+  Banknote,
+  Wallet,
+  UserCheck,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { api } from "../../services/api";
@@ -24,8 +24,38 @@ import { toast } from "react-toastify";
 import { useData } from "../../components/context";
 import { ModalConfirmVenda } from "./modalConfirm";
 import { useReactToPrint } from "react-to-print";
-import { TypeProduct, TypeDashboard } from "../../components/types";
+import { TypeProduct } from "../../components/types";
 import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
+
+// Tipos locais para o dashboard e usuários
+interface UserDashboard {
+  id: number;
+  username: string;
+}
+
+interface TypeDashboard {
+  total_venda: number;
+  vendas_hoje: number;
+  users: UserDashboard[];
+}
+
+interface ItemVenda {
+  codigo: string;
+  code_status: string;
+  qtde: number;
+}
+
+interface PayloadVenda {
+  forma: string;
+  data: TypeProduct[];
+  vendedor: string;
+  total: number;
+  parcelas?: string | null;
+  data_vencimento?: string | null;
+  cliente?: string;
+  valor_parcela?: number | string | null;
+  [key: string]: string | number | TypeProduct[] | null | undefined;
+}
 
 interface iCard {
   title: string;
@@ -67,6 +97,16 @@ export const CardCaixaFinish: React.FC<iCard> = ({
   const { setProduct, setDashboard, dashboard, dataClient, formatedMoney } =
     useData() as {
       setProduct: React.Dispatch<React.SetStateAction<TypeProduct[]>>;
+      setDashboard: React.Dispatch<React.SetStateAction<TypeDashboard>>;
+      dashboard: TypeDashboard;
+      dataClient: Array<{
+        id: number;
+        nome: string;
+        rua: string;
+        bairro: string;
+        numero: string;
+        cidade: string;
+      }>;
       formatedMoney: (value: number) => string;
     };
   const [iTroco, setItroco] = useState("");
@@ -80,11 +120,13 @@ export const CardCaixaFinish: React.FC<iCard> = ({
     null
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [vendedorName, setVendedorName] = useState();
+  const [vendedorName, setVendedorName] = useState<string>("");
   const [nameClientCupom, setNameClientCupom] = useState("");
 
   const handleVendedorName = (e: string) => {
-    const username = dashboard.users.find((v) => v.id === Number(e));
+    const username = dashboard.users.find(
+      (v: UserDashboard) => v.id === Number(e)
+    );
     if (username) {
       setVendedorName(username.username);
     }
@@ -131,7 +173,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
   const isOpenConfirm = () => {
     setIsConfirmOpen(!isConfirmOpen);
   };
-  const sendVenda = async (data: Array<string>) => {
+  const sendVenda = async (data: PayloadVenda) => {
     setLoading(true);
     try {
       const response = await toast.promise(api.post("api/venda/", data), {
@@ -179,7 +221,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
       }
       const lista_codigo = dataResp["lista_codigo"];
       // codar aqui
-      lista_codigo.forEach((item: { codigo: string }) => {
+      lista_codigo.forEach((item: ItemVenda) => {
         setDataUpdate(
           (prevData) =>
             prevData
@@ -202,19 +244,22 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     .replace("$", "")
                     .replace(",", ".");
                   const price = Number(precoItem) * item.qtde;
-                  const newTotal = parseFloat(price) + totalVenda;
+                  const newTotal = price + totalVenda;
                   setDashboard((prevDash) => ({
                     ...prevDash,
                     total_venda: newTotal,
                   }));
-                  if (rmItem.estoque - item.qtde <= 0) {
+                  const produtoExtendido = rmItem as TypeProduct & {
+                    estoque: number;
+                  };
+                  if (produtoExtendido.estoque - item.qtde <= 0) {
                     return null;
                   }
 
                   return {
                     ...rmItem,
-                    estoque: rmItem.estoque - item.qtde,
-                  };
+                    estoque: produtoExtendido.estoque - item.qtde,
+                  } as TypeProduct & { estoque: number };
                 }
               }
 
@@ -293,36 +338,36 @@ export const CardCaixaFinish: React.FC<iCard> = ({
     );
   };
 
-  const onSubmit = (formData) => {
+  const onSubmit = () => {
     setIsConfirmOpen(true);
   };
 
-  const onSubmit2 = (formData) => {
+  const onSubmit2 = (formData: Record<string, string | number>) => {
     setIsConfirmOpen(false);
     if (isVendedor == "") {
       return notifyError("Selecione um vendedor!");
     }
     if (forma == "") {
-      notifyError("Escolha uma forma de pagamento!");
+      return notifyError("Escolha uma forma de pagamento!");
     } else if (dataUpdate == null) {
-      notifyError("O carrinho esta vazio!");
+      return notifyError("O carrinho esta vazio!");
     } else {
-      const payload = {
+      const payload: PayloadVenda = {
         ...formData,
         forma: selectedOption,
         data: dataUpdate,
         vendedor: isVendedor,
+        total: total,
       };
-      payload["total"] = total;
       if (forma == "crediario") {
-        payload["parcelas"] = parcelas;
-        payload["data_vencimento"] = dataVencimento;
-        payload["cliente"] = nameClient;
-        payload["valor_parcela"] = valorParcela;
+        payload.parcelas = parcelas;
+        payload.data_vencimento = dataVencimento;
+        payload.cliente = nameClient;
+        payload.valor_parcela = valorParcela;
         if (parcelas && nameClient && dataVencimento) {
           sendVenda(payload);
         } else {
-          notifyError(
+          return notifyError(
             "Preencha os campos corretamente, verifique o número de parcelas, nome do cliente e data de vencimento"
           );
         }
@@ -402,16 +447,18 @@ export const CardCaixaFinish: React.FC<iCard> = ({
         const client = dataClient.find(
           (client: { nome: string }) => client.nome === cpf
         );
-        setClientCountry(
-          client.rua +
-            ", " +
-            client.bairro +
-            ", " +
-            client.numero +
-            ", " +
-            client.cidade
-        );
-        setClientName(client.nome);
+        if (client) {
+          setClientCountry(
+            client.rua +
+              ", " +
+              client.bairro +
+              ", " +
+              client.numero +
+              ", " +
+              client.cidade
+          );
+          setClientName(client.nome);
+        }
         setSearchClient(false);
       } else {
         setSearchClient(true);
@@ -423,90 +470,135 @@ export const CardCaixaFinish: React.FC<iCard> = ({
 
   return (
     <>
-      <Card className="bg-app-text-color border-app-text-color text-app-bg-color">
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription className="text-gray-200">
+      <Card className="bg-white border-brand-200 shadow-sm">
+        <CardHeader className="bg-gradient-to-r from-brand-50 to-brown-50 border-b border-brand-200">
+          <CardTitle className="text-xl font-semibold text-brown-800">
+            {title}
+          </CardTitle>
+          <CardDescription className="text-brown-600">
             {description}
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="text-app-bg-color space-y-6">
-            <RadioGroup
-              value={selectedOption}
-              onValueChange={handleOptionChange}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="dinheiro" id="dinheiro" />
-                <Receipt className="mr-2 text-green-900" />
-                <Label htmlFor="dinheiro">Dinheiro</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pix" id="pix" />
-                <Landmark className="mr-2 text-blue-900" />
-                <Label htmlFor="pix">Pix</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="debito" id="debito" />
-                <CreditCard className="mr-2 text-purple-900" />
-                <Label htmlFor="debito">Débito</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="credito" id="credito" />
-                <WalletCards className="mr-2 text-orange-600" />
-                <Label htmlFor="credito">Crédito</Label>
-              </div>
-              <div className="flex items-center space-x-2 col-span-2">
-                <RadioGroupItem value="crediario" id="crediario" />
-                <Contact className="mr-2 text-gray-700" />
-                <Label htmlFor="crediario">Crediário</Label>
-              </div>
-            </RadioGroup>
+          <CardContent className="p-4 space-y-4">
+            <div className="space-y-3">
+              <Label className="text-brown-700 font-medium text-sm">
+                Forma de Pagamento
+              </Label>
+              <RadioGroup
+                value={selectedOption}
+                onValueChange={handleOptionChange}
+                className="grid grid-cols-2 gap-2"
+              >
+                <div className="flex items-center space-x-2 p-2 border border-brand-200 rounded-md hover:bg-brand-50 transition-colors">
+                  <RadioGroupItem value="dinheiro" id="dinheiro" />
+                  <Banknote className="text-green-600" size={16} />
+                  <Label
+                    htmlFor="dinheiro"
+                    className="text-brown-700 font-medium text-sm"
+                  >
+                    Dinheiro
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 border border-brand-200 rounded-md hover:bg-brand-50 transition-colors">
+                  <RadioGroupItem value="pix" id="pix" />
+                  <Smartphone className="text-blue-600" size={16} />
+                  <Label
+                    htmlFor="pix"
+                    className="text-brown-700 font-medium text-sm"
+                  >
+                    Pix
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 border border-brand-200 rounded-md hover:bg-brand-50 transition-colors">
+                  <RadioGroupItem value="debito" id="debito" />
+                  <CreditCard className="text-purple-600" size={16} />
+                  <Label
+                    htmlFor="debito"
+                    className="text-brown-700 font-medium text-sm"
+                  >
+                    Débito
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 border border-brand-200 rounded-md hover:bg-brand-50 transition-colors">
+                  <RadioGroupItem value="credito" id="credito" />
+                  <Wallet className="text-brand-600" size={16} />
+                  <Label
+                    htmlFor="credito"
+                    className="text-brown-700 font-medium text-sm"
+                  >
+                    Crédito
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 p-2 border border-brand-200 rounded-md hover:bg-brand-50 transition-colors col-span-2">
+                  <RadioGroupItem value="crediario" id="crediario" />
+                  <UserCheck className="text-brown-600" size={16} />
+                  <Label
+                    htmlFor="crediario"
+                    className="text-brown-700 font-medium text-sm"
+                  >
+                    Crediário
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {forma !== "crediario" && forma !== "" && (
                 <div className="space-y-2">
-                  <Input
-                    placeholder="Digite o nome do cliente (opcional)"
-                    className="w-full h-auto"
-                    onChange={handleNameClient}
-                    value={nameClientCupom}
-                  />
-
-                  <Input
-                    placeholder="Digite o telefone do cliente (opcional)"
-                    className="w-full h-auto"
-                    onChange={handleContat}
-                    value={contatoClient}
-                  />
+                  <Label className="text-brown-700 font-medium text-sm">
+                    Dados do Cliente (opcional)
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Input
+                      placeholder="Nome do cliente"
+                      className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9 text-sm"
+                      onChange={handleNameClient}
+                      value={nameClientCupom}
+                    />
+                    <Input
+                      placeholder="Telefone do cliente"
+                      className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9 text-sm"
+                      onChange={handleContat}
+                      value={contatoClient}
+                    />
+                  </div>
                 </div>
               )}
               {forma === "dinheiro" && (
-                <Input
-                  placeholder="Valor recebido..."
-                  className="w-full h-auto"
-                  onChange={handleTroco}
-                  onInput={handleChangeItroco}
-                  value={iTroco}
-                />
+                <div className="space-y-2">
+                  <Label className="text-brown-700 font-medium text-sm">
+                    Valor Recebido
+                  </Label>
+                  <Input
+                    placeholder="Valor recebido..."
+                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9"
+                    onChange={handleTroco}
+                    onInput={handleChangeItroco}
+                    value={iTroco}
+                  />
+                </div>
               )}
 
               {forma === "crediario" && (
-                <fieldset className="border-t border-app-bg-color/50 pt-4 space-y-4">
-                  <legend className="px-2 text-sm font-medium text-app-bg-color/80">
+                <div className="border-t border-brand-200 pt-3 space-y-3">
+                  <h3 className="text-base font-medium text-brown-800">
                     Dados do Crediário
-                  </legend>
+                  </h3>
                   <div className="space-y-2">
-                    <Label className="font-semibold">CLIENTE:</Label>
-                    <Input
-                      className="h-8 text-[12px] px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Digite o CPF do cliente"
-                      onChange={handleSearchClient}
-                    />
+                    <div className="space-y-1">
+                      <Label className="text-brown-700 font-medium text-sm">
+                        Cliente:
+                      </Label>
+                      <Input
+                        className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9 text-sm"
+                        placeholder="Digite o CPF do cliente"
+                        onChange={handleSearchClient}
+                      />
+                    </div>
                     {searchClient === true && (
-                      <span className="text-red-500 font-medium text-sm">
+                      <span className="text-red-500 font-medium text-sm bg-red-50 p-2 rounded-md border border-red-200">
                         Cliente não encontrado.
                       </span>
                     )}
@@ -545,16 +637,19 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                       </div>
                     </div>
                   )}
-                </fieldset>
+                </div>
               )}
             </div>
 
             {dataUpdate.length > 0 && (
-              <div>
+              <div className="space-y-2">
+                <Label className="text-brown-700 font-medium text-sm">
+                  Vendedor Responsável
+                </Label>
                 <select
-                  className="w-full h-10 bg-white border border-gray-300 rounded-md 
-                shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-                 focus:border-blue-500 text-gray-900 placeholder-gray-500 pl-2"
+                  className="w-full h-9 bg-white border border-brand-200 rounded-md shadow-sm 
+                  focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 
+                  text-brown-800 text-sm pl-3 pr-8"
                   onChange={(e) => {
                     setIsVendedor(e.target.value);
                     handleVendedorName(e.target.value);
@@ -565,33 +660,31 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     Selecione o vendedor
                   </option>
                   {dashboard &&
-                    dashboard.users.map(
-                      (vendedor: { id: string; username: string }) => (
-                        <option key={vendedor.id} value={vendedor.id}>
-                          {vendedor.username}
-                        </option>
-                      )
-                    )}
+                    dashboard.users.map((vendedor: UserDashboard) => (
+                      <option key={vendedor.id} value={vendedor.id}>
+                        {vendedor.username}
+                      </option>
+                    ))}
                 </select>
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col items-end gap-4">
-            <div className="w-full space-y-2 text-right text-lg">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>{formatedMoney(subtotal)}</span>
+          <CardFooter className="bg-gradient-to-r from-brand-50 to-brown-50 border-t border-brand-200 flex flex-col items-end gap-4">
+            <div className="w-full space-y-3 text-right">
+              <div className="flex justify-between text-brown-700">
+                <span className="font-medium">Subtotal:</span>
+                <span className="font-semibold">{formatedMoney(subtotal)}</span>
               </div>
-              <div className="flex justify-between font-bold">
+              <div className="flex justify-between font-bold text-lg text-brown-800 border-t border-brand-200 pt-2">
                 <span>Total:</span>
-                <span>
+                <span className="text-brand-600">
                   {total ? formatedMoney(total) : formatedMoney(subtotal)}
                 </span>
               </div>
               {forma === "dinheiro" && (
                 <div
-                  className={`flex justify-between ${
-                    troco < 0 ? "text-red-500" : "text-green-300"
+                  className={`flex justify-between font-medium ${
+                    troco < 0 ? "text-red-600" : "text-green-600"
                   }`}
                 >
                   <span>Troco:</span>
@@ -601,10 +694,10 @@ export const CardCaixaFinish: React.FC<iCard> = ({
             </div>
             <Button
               type="submit"
-              className="h-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-base"
+              className="w-full h-12 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-semibold text-lg shadow-md transition-all duration-200 hover:shadow-lg active:scale-95"
               disabled={loading || dataUpdate.length === 0}
             >
-              Finalizar
+              {loading ? "Processando..." : "Finalizar Venda"}
             </Button>
           </CardFooter>
         </form>
@@ -629,13 +722,11 @@ export const CardCaixaFinish: React.FC<iCard> = ({
           }}
         >
           <div className="text-center space-y-1">
-            <h2 className="font-bold bg-gray-100 text-[10px]">
-              Paula Calçados e Store
-            </h2>
+            <h2 className="font-bold bg-gray-100 text-[10px]">Paula Kids</h2>
             <div className="space-x-2 flex">
               <div className="w-[64px]">
                 <img
-                  src="https://i.imgur.com/AoxWFP4.png"
+                  src="https://i.imgur.com/1gjHoAF.png"
                   className="w-full h-auto"
                 />
               </div>

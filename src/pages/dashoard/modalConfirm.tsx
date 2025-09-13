@@ -2,13 +2,24 @@ import { useData } from "../../components/context";
 import { Modal } from "../../components/modalBase";
 import { TypeCurrent } from "../../components/types";
 import { Button } from "../../components/ui/button";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  User,
+  DollarSign,
+  Calendar,
+  X,
+  CreditCard,
+  FileText,
+  Clock,
+} from "lucide-react";
 
 interface iModalVendaNota {
   isOpen: boolean;
   closeModal: () => void;
   titleModal: string;
   descriptionModal: string;
-  finish: () => void;
+  finish: (data: TypeCurrent) => void;
   data: TypeCurrent;
 }
 
@@ -27,53 +38,184 @@ export const ModalConfirmVendaNota: React.FC<iModalVendaNota> = ({
     <Modal
       isOpen={isOpen}
       onRequestClose={closeModal}
-      overlayClassName="fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+      overlayClassName="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     >
-      <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-slate-200 bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex flex-col space-y-1.5 text-center sm:text-left gap-1">
-          <div className="text-lg font-semibold leading-none tracking-tight">
-            <span>{titleModal}</span>
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              {descriptionModal}
+      {/* Modal Container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
+          {/* Modal Content */}
+          <div className="bg-white rounded-2xl border border-orange-200 shadow-2xl shadow-orange-900/10 overflow-hidden">
+            {/* Header with Warning Theme */}
+            <div className="relative bg-gradient-to-br from-orange-50 to-amber-50 px-6 py-5 border-b border-orange-200">
+              <button
+                onClick={closeModal}
+                className="absolute right-4 top-4 p-2 rounded-full bg-white/80 hover:bg-white border border-orange-200 text-orange-600 hover:text-orange-800 transition-all duration-200 hover:scale-105"
+              >
+                <X size="18" />
+              </button>
+
+              <div className="flex items-center gap-4 pr-12">
+                <div className="relative">
+                  <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg">
+                    <AlertTriangle size="24" className="text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-brown-800">
+                    {titleModal}
+                  </h2>
+                  <p className="text-sm text-brown-600 mt-1">
+                    {descriptionModal}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-6">
+              {isOpen && (
+                <div className="space-y-6">
+                  {/* Warning Message */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle
+                        size="20"
+                        className="text-orange-600 mt-0.5 flex-shrink-0"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-orange-800">
+                          Confirmação de Pagamento
+                        </p>
+                        <p className="text-xs text-orange-700 mt-1">
+                          Esta ação irá marcar a notinha como paga e não poderá
+                          ser desfeita.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Details */}
+                  <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                    <div className="flex items-center gap-2 mb-4">
+                      <FileText size="18" className="text-brand-600" />
+                      <h3 className="font-semibold text-brown-800">
+                        Detalhes da Notinha
+                      </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Cliente */}
+                      <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                          <User size="16" className="text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                            Cliente
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {data.cliente}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Valor */}
+                      <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
+                          <DollarSign size="16" className="text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                            Valor
+                          </p>
+                          <p className="text-lg font-bold text-green-600">
+                            {formatedMoney(data.valor)}
+                          </p>
+                        </div>
+                        <div className="p-2 bg-brand-100 rounded-lg">
+                          <CreditCard size="16" className="text-brand-600" />
+                        </div>
+                      </div>
+
+                      {/* Vencimento */}
+                      <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+                          <Calendar size="16" className="text-orange-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                            Vencimento
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {new Date(data.vencimento).toLocaleDateString(
+                              "pt-BR",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size="14" className="text-orange-500" />
+                          <span className="text-xs text-orange-600 font-medium">
+                            {new Date(data.vencimento) < new Date()
+                              ? "Vencida"
+                              : "Pendente"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Success Message Preview */}
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2
+                        size="20"
+                        className="text-green-600 mt-0.5 flex-shrink-0"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-green-800">
+                          Após confirmação
+                        </p>
+                        <p className="text-xs text-green-700 mt-1">
+                          A notinha será marcada como paga e removida da lista
+                          de pendências.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                <Button
+                  onClick={closeModal}
+                  className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+                >
+                  <X size="18" />
+                  Cancelar
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    closeModal();
+                    finish(data);
+                  }}
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-medium shadow-lg hover:shadow-green-500/25 transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 size="18" />
+                  Confirmar Pagamento
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="space-y-[0.8px] text-sm">
-            {isOpen && (
-              <div className="font-bold">
-                <div>
-                  Tem certeza que deseja informar o pagamento para a notinha?
-                </div>
-                <p>Cliente: {data.cliente}</p>
-                <p>Valor: {formatedMoney(data.valor)}</p>
-                <p>
-                  Vencimento:{" "}
-                  {new Date(data.vencimento).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-row-reverse gap-1">
-          <Button
-            className="h-7 bg-red-600 hover:bg-red-600"
-            onClick={closeModal}
-          >
-            Cancelar
-          </Button>
-
-          <Button
-            className="h-7 bg-green-600 hover:bg-green-600"
-            onClick={() => {
-              closeModal();
-              finish(data);
-            }}
-          >
-            Confirmar
-          </Button>
         </div>
       </div>
     </Modal>

@@ -81,7 +81,7 @@ export const TableBase: React.FC<iCard> = ({
         <TableHeader>
           <TableRow>
             {dataHeader.map((header, index) => (
-              <TableHead className="text-gray-200" key={index}>
+              <TableHead className="" key={index}>
                 {header.toUpperCase()}
               </TableHead>
             ))}
@@ -98,18 +98,27 @@ export const TableBase: React.FC<iCard> = ({
                 </TableCell>
               ))}
               <TableCell className="border-b-[1px]">
-                <div className="flex gap-3">
-                  <button>
-                    <Plus size={18} onClick={() => handleAdd(index)} />
-                  </button>
-                  <button className="text-red-600">
-                    <Minus size={18} onClick={() => handleMinus(index)} />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleAdd(index)}
+                    className="p-2 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 hover:text-green-700 transition-all duration-200 hover:scale-105 border border-green-200 hover:border-green-300"
+                    title="Adicionar item"
+                  >
+                    <Plus size={16} strokeWidth={2.5} />
                   </button>
                   <button
-                    className="text-blue-700"
-                    onClick={() => handleDelete(index)}
+                    onClick={() => handleMinus(index)}
+                    className="p-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 hover:text-amber-700 transition-all duration-200 hover:scale-105 border border-amber-200 hover:border-amber-300"
+                    title="Remover item"
                   >
-                    <Trash2 size={18} />
+                    <Minus size={16} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(index)}
+                    className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-105 border border-red-200 hover:border-red-300"
+                    title="Excluir item"
+                  >
+                    <Trash2 size={16} strokeWidth={2.5} />
                   </button>
                 </div>
               </TableCell>

@@ -42,12 +42,16 @@ export const CardTable: React.FC<iCard> = ({
   ];
 
   return (
-    <Card className="bg-app-text-color border-app-text-color text-app-bg-color">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+    <Card className="bg-white border-brand-200 shadow-sm">
+      <CardHeader className="bg-gradient-to-r from-brand-50 to-brown-50 border-b border-brand-200">
+        <CardTitle className="text-xl font-semibold text-brown-800">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-brown-600">
+          {description}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="text-app-bg-color overflow-x-auto">
+      <CardContent className="p-6 overflow-x-auto">
         <TableBase
           dataHeader={dataHeader}
           dataBody={dataBody}

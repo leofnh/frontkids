@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Main } from "../../components/main";
 import { Nav } from "../../components/nav";
 import { toast, ToastContainer } from "react-toastify";
 import { api } from "../../services/api";
@@ -236,136 +235,169 @@ export function Produtos() {
 
   return (
     <>
-      <Main className="text-app-text-color">
-        <Nav></Nav>
-        <div className="ml-20">
-          <ToastContainer />
-          <div className="flex mt-4 ml-4 space-x-2">
-            {isPage == 1 && (
-              <>
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brown-50">
+        <Nav />
+        <ToastContainer
+          position="top-right"
+          toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
+        />
+
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-brown-800 mb-2">
+                  {isPage === 1 ? "Gestão de Produtos" : "Condicionais"}
+                </h1>
+                <p className="text-brown-600">
+                  {isPage === 1
+                    ? "Cadastre e gerencie seu estoque de produtos"
+                    : "Configure condicionais de produtos"}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {isPage === 1 && (
+                  <>
+                    <Button
+                      className="bg-brand-500 hover:bg-brand-600 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
+                      onClick={() => {
+                        openModal();
+                        setIsUpdate(false);
+                        setDataUpdate({
+                          ref: "",
+                          loja: false,
+                          marca: "",
+                          codigo: "",
+                          tamanho: "",
+                          preco: "",
+                          custo: "",
+                          estoque: "",
+                          produto: "",
+                          cor: "",
+                          descricao: "",
+                          sequencia: "",
+                        });
+                      }}
+                    >
+                      + Novo Produto
+                    </Button>
+
+                    <Button
+                      className="bg-brown-600 hover:bg-brown-700 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
+                      onClick={openModalImport}
+                    >
+                      📥 Importar
+                    </Button>
+                  </>
+                )}
+
+                {isPage === 2 && (
+                  <Button
+                    className="bg-brown-600 hover:bg-brown-700 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
+                    onClick={() => {
+                      setModalCond(!isModalCond);
+                    }}
+                  >
+                    {isModalCond ? "📋 Condicionais" : "+ Nova Condicional"}
+                  </Button>
+                )}
+
                 <Button
-                  className="text-app-text-color bg-gray-700 rounded-lg h-7"
+                  className="bg-brown-500 hover:bg-brown-600 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
                   onClick={() => {
-                    openModal();
-                    setIsUpdate(false);
-                    setDataUpdate([]);
+                    if (isPage === 1) {
+                      setPage(2);
+                    } else {
+                      setPage(1);
+                      setModalCond(false);
+                    }
                   }}
                 >
-                  Novo Produto
+                  {isPage === 1 ? "📊 Condicionais" : "📦 Estoque"}
                 </Button>
-
-                <Button
-                  className="text-app-text-color bg-gray-700 rounded-lg h-7"
-                  onClick={openModalImport}
-                >
-                  Importar Produtos
-                </Button>
-              </>
-            )}
-            {isPage == 2 && (
-              <Button
-                className="text-app-text-color bg-gray-700 rounded-lg h-7"
-                onClick={() => {
-                  setModalCond(!isModalCond);
-                }}
-              >
-                {isModalCond ? "Condicionais" : "Nova Condicional"}
-              </Button>
-            )}
-            <Button
-              className="text-app-text-color bg-gray-700 rounded-lg h-7"
-              onClick={() => {
-                if (isPage == 1) {
-                  setPage(2);
-                } else {
-                  setPage(1);
-                  setModalCond(false);
-                }
-              }}
-            >
-              {isPage == 1 ? "Condicionais" : "Estoque"}
-            </Button>
-
-            <ModalCreateProduct
-              isOpen={isOpenCreateObject}
-              closeModal={openModal}
-              descriptionModal={
-                !isUpdate
-                  ? "Preencha todos os campos para cadastrar o produto."
-                  : "Preencha todos os campos para atualizar os produtos."
-              }
-              titleModal={
-                !isUpdate ? "Cadastrando o produto" : "Atualizando o produto."
-              }
-              handleFilterProduct={handleFilterProduct}
-              handleSubmit={handleSubmit}
-              register={register}
-              update={isUpdate}
-              dataUpdate={dataUpdate}
-              setValue={setValue}
-              watch={watch}
-            />
-
-            <ModalImportProduct
-              isOpen={isModalImport}
-              closeModal={openModalImport}
-              descriptionModal="Importação de produtos"
-              titleModal="Utilize o modelo de importação para garantir a importação correta."
-              notifyError={notifyError}
-              notifySuccess={notifySuccess}
-            />
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="mt-4 m-20">
-          {isPage == 2 && (
-            <>
-              {isModalCond ? (
-                <>
-                  <div>
+          <div className="bg-white rounded-xl shadow-sm border border-brand-100 overflow-hidden">
+            {isPage === 2 && (
+              <>
+                {isModalCond ? (
+                  <div className="p-6">
                     <TableClientCondicional setCondicional={setCondicional} />
                   </div>
-                </>
-              ) : (
-                <>
-                  <div>
+                ) : (
+                  <div className="p-6">
                     <TableCondicionais
                       condicionais={condicionais}
                       produtos={produtoCondicional}
                       setProdutosCondicionais={() => setProdutoCondicional}
                     />
                   </div>
-                </>
-              )}
-            </>
-          )}
-          {isPage == 1 && (
-            <TableBaseProduct
-              dataBody={dataProduct}
-              dataHeader={dataHeaderProduct}
-              handleUpdate={handleUpdateEstoque}
-              notifySuccess={notifySuccess}
-              notifyError={notifyError}
-              setUpdate={setIsUpdate}
-              isOpen={openModal}
-              setDataUpdate={setDataUpdate}
-              imgProduct={imgProduct}
-              setImgProduct={setImgProduct}
-              isImgOpen={isImgOpen}
-              setImgOpen={setImgOpen}
-            />
-          )}
-          <ModalImage
-            isOpen={isImgOpen}
-            closeModal={closeModalImg}
-            titleModal="Adicione imagens ao produto"
-            descriptionModal="Faça upload antes de enviar o link."
-            notifyError={notifyError}
-            notifySuccess={notifySuccess}
-            imgProduct={imgProduct}
-            dataUpdate={dataUpdate}
-          />
-        </div>
-      </Main>
+                )}
+              </>
+            )}
+
+            {isPage === 1 && (
+              <TableBaseProduct
+                dataBody={dataProduct}
+                dataHeader={dataHeaderProduct}
+                handleUpdate={handleUpdateEstoque}
+                notifySuccess={notifySuccess}
+                notifyError={notifyError}
+                setUpdate={setIsUpdate}
+                setIsOpen={openModal}
+                setDataUpdate={setDataUpdate}
+                imgProduct={imgProduct}
+                setImgProduct={setImgProduct}
+                isImgOpen={isImgOpen}
+                setImgOpen={setImgOpen}
+              />
+            )}
+          </div>
+        </main>
+
+        {/* Modais */}
+        <ModalCreateProduct
+          isOpen={isOpenCreateObject}
+          closeModal={openModal}
+          descriptionModal={
+            !isUpdate
+              ? "Preencha todos os campos para cadastrar o produto."
+              : "Preencha todos os campos para atualizar os produtos."
+          }
+          titleModal={
+            !isUpdate ? "Cadastrando o produto" : "Atualizando o produto."
+          }
+          handleFilterProduct={handleFilterProduct}
+          handleSubmit={handleSubmit}
+          register={register}
+          update={isUpdate}
+          dataUpdate={dataUpdate}
+          setValue={setValue}
+          watch={watch}
+        />
+
+        <ModalImportProduct
+          isOpen={isModalImport}
+          closeModal={openModalImport}
+          descriptionModal="Importação de produtos"
+          titleModal="Utilize o modelo de importação para garantir a importação correta."
+          notifyError={notifyError}
+          notifySuccess={notifySuccess}
+        />
+
+        <ModalImage
+          isOpen={isImgOpen}
+          closeModal={closeModalImg}
+          titleModal="Adicione imagens ao produto"
+          descriptionModal="Faça upload antes de enviar o link."
+          notifyError={notifyError}
+          notifySuccess={notifySuccess}
+          imgProduct={imgProduct}
+          dataUpdate={dataUpdate}
+        />
+      </div>
     </>
   );
 }

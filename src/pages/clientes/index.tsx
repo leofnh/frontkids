@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Main } from "../../components/main";
 import { Nav } from "../../components/nav";
 import { toast, ToastContainer } from "react-toastify";
 import { api } from "../../services/api";
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { useData } from "../../components/context";
 import { ModalCreateClient } from "./modalCliente";
 import { TableBaseClient } from "./table";
+import { DataCliente } from "../../components/types";
 
 const infoSendSchema = z.object({
   nome: z.string().min(1, "Campo obrigatório"),
@@ -29,10 +29,12 @@ type infoSendSchema = z.infer<typeof infoSendSchema>;
 
 export function Clientes() {
   const { dataClient, setClient } = useData() as {
-    dataClient: infoSendSchema;
-    setClient: (data: infoSendSchema) => infoSendSchema;
+    dataClient: DataCliente[];
+    setClient: (data: DataCliente[]) => void;
   };
-  const [dataUpdate, setDataUpdate] = useState();
+  const [dataUpdate, setDataUpdate] = useState<DataCliente | undefined>(
+    undefined
+  );
   const [isUpdate, setIsUpdate] = useState(false);
   const {
     register,
@@ -43,11 +45,16 @@ export function Clientes() {
   } = useForm<infoSendSchema>({
     resolver: zodResolver(infoSendSchema),
   });
-  const [errorInfo, setError] = useState();
-  const [loading, setLoading] = useState(false);
+  const setError = (error: unknown) => {
+    console.error(error);
+  };
+  const setLoading = (loading: boolean) => {
+    // Função para controlar loading (não utilizada atualmente)
+    void loading;
+  };
   const [isOpenCreateObject, setCreateObject] = useState(false);
 
-  const dataHeaderclient = [
+  const dataHeaderclient: Array<keyof DataCliente> = [
     "nome",
     "cpf",
     "idt",
@@ -131,42 +138,59 @@ export function Clientes() {
 
   return (
     <>
-      <Main className="text-app-text-color">
-        <Nav></Nav>
-        <div>
-          <ToastContainer />
-          <div className="flex mt-4 ml-24">
-            <Button
-              className="text-app-text-color bg-gray-700 rounded-lg space-x-1 h-7"
-              onClick={openModal}
-            >
-              <span>Novo Cliente</span>
-            </Button>
-            <ModalCreateClient
-              isOpen={isOpenCreateObject}
-              closeModal={openModal}
-              descriptionModal="Preencha todos os dados solicitados para concluir o cadastro."
-              titleModal="Cadastro de clientes"
-              handleFilterProduct={handleFilterProduct}
-              handleSubmit={handleSubmit}
-              register={register}
-              errors={errors}
-              update={isUpdate}
-              dataUpdate={dataUpdate}
-              setValue={setValue}
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brown-50">
+        <Nav />
+        <ToastContainer
+          position="top-right"
+          toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
+        />
+
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-brown-800 mb-2">
+                  Gestão de Clientes
+                </h1>
+                <p className="text-brown-600">
+                  Cadastre e gerencie informações dos seus clientes
+                </p>
+              </div>
+
+              <Button
+                className="bg-brand-500 hover:bg-brand-600 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-6 py-3"
+                onClick={openModal}
+              >
+                <span className="text-sm font-medium">+ Novo Cliente</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-brand-100 overflow-hidden">
+            <TableBaseClient
+              dataBody={dataClient}
+              dataHeader={dataHeaderclient}
+              setDataUpdate={setDataUpdate}
+              setIsUpdate={setIsUpdate}
+              setCreateObject={setCreateObject}
             />
           </div>
-        </div>
-        <div className="mt-4 m-20">
-          <TableBaseClient
-            dataBody={dataClient}
-            dataHeader={dataHeaderclient}
-            setDataUpdate={setDataUpdate}
-            setIsUpdate={setIsUpdate}
-            setCreateObject={setCreateObject}
+
+          <ModalCreateClient
+            isOpen={isOpenCreateObject}
+            closeModal={openModal}
+            descriptionModal="Preencha todos os dados solicitados para concluir o cadastro."
+            titleModal="Cadastro de clientes"
+            handleFilterProduct={handleFilterProduct}
+            handleSubmit={handleSubmit}
+            register={register}
+            errors={errors}
+            update={isUpdate}
+            dataUpdate={dataUpdate}
+            setValue={setValue}
           />
-        </div>
-      </Main>
+        </main>
+      </div>
     </>
   );
 }

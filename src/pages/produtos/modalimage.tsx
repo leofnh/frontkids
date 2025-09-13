@@ -1,7 +1,20 @@
 import React, { useState } from "react";
+import {
+  X,
+  Image as ImageIcon,
+  Upload,
+  Link2,
+  Trash2,
+  Eye,
+  Plus,
+  Loader2,
+  Camera,
+  ZoomIn,
+  Images,
+} from "lucide-react";
 import { Modal } from "../../components/modalBase";
+import "../../styles/modal-image.css";
 import { Button } from "../../components/ui/button";
-import { Label } from "../../components/ui/label";
 import { api } from "../../services/api";
 import { Input } from "../../components/ui/input";
 import {
@@ -12,15 +25,12 @@ import {
   CarouselPrevious,
 } from "../../components/ui/carousel";
 import { ImgProductType, ProductType } from "../../components/types";
-import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import { useData } from "../../components/context";
 
 interface iModalimport {
   isOpen: boolean;
   closeModal: () => void;
-  titleModal: string;
-  descriptionModal: string;
   notifySuccess: (text: string) => void;
   notifyError: (text: string) => void;
   imgProduct: ImgProductType[];
@@ -30,8 +40,6 @@ interface iModalimport {
 export const ModalImage: React.FC<iModalimport> = ({
   isOpen,
   closeModal,
-  titleModal,
-  descriptionModal,
   notifyError,
   notifySuccess,
   imgProduct,
@@ -39,6 +47,7 @@ export const ModalImage: React.FC<iModalimport> = ({
 }) => {
   const [linkImg, setLinkImg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
   const { setImgProduct } = useData() as {
     setImgProduct: (data: ImgProductType[]) => void;
   };
@@ -46,15 +55,25 @@ export const ModalImage: React.FC<iModalimport> = ({
   // const { setProduct } = useData();
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (linkImg) {
-      const formData = new FormData();
-      const codigo_produto = dataUpdate.codigo;
-      formData.append("id_produto", codigo_produto);
-      formData.append("url", linkImg);
-      await sendFile(formData);
-    } else {
-      notifyError("Informe o link para ser enviado.");
+
+    if (!linkImg.trim()) {
+      notifyError("Por favor, informe o link da imagem.");
+      return;
     }
+
+    // Validação básica de URL
+    try {
+      new URL(linkImg);
+    } catch {
+      notifyError("Por favor, informe uma URL válida.");
+      return;
+    }
+
+    const formData = new FormData();
+    const codigo_produto = dataUpdate.codigo;
+    formData.append("id_produto", codigo_produto);
+    formData.append("url", linkImg);
+    await sendFile(formData);
   };
 
   const sendFile = async (formData: FormData) => {
@@ -83,7 +102,6 @@ export const ModalImage: React.FC<iModalimport> = ({
   const sendImg = async (id: string) => {
     try {
       setLoading(true);
-      console.log("ID: ", id);
       const data = new FormData();
       data.append("id", id);
       const response = await api.post("api/del/img-produto/", data);
@@ -143,76 +161,220 @@ export const ModalImage: React.FC<iModalimport> = ({
 
   return (
     <Modal isOpen={isOpen} onRequestClose={closeModal}>
-      <div className="relative left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[0%] gap-4 border border-slate-200 bg-white p-6 shadow-lg sm:rounded-lg dark:border-slate-800 dark:bg-slate-950">
-        <div className="">
-          <div className="text-lg font-semibold leading-none tracking-tight">
-            {titleModal}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              {descriptionModal}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+        <div className="h-[90vh] w-full max-w-6xl flex flex-col bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          {/* Header Heroico */}
+          <div className="relative bg-gradient-to-br from-orange-400 via-orange-500 to-amber-600 p-6 text-white">
+            <div className="absolute inset-0 bg-black/10 rounded-t-2xl"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                    <Images className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                      Galeria de Imagens
+                    </h2>
+                    <p className="text-orange-100 text-sm md:text-lg font-medium">
+                      Código: {dataUpdate.codigo}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Botão Fechar */}
+                <button
+                  onClick={closeModal}
+                  className="p-2 hover:bg-white/20 rounded-xl transition-all duration-200 group"
+                >
+                  <X className="h-6 w-6 text-white group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 text-orange-100">
+                <Camera className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  {
+                    imgProduct.filter(
+                      (img) => img.id_produto === dataUpdate.codigo
+                    ).length
+                  }
+                  {imgProduct.filter(
+                    (img) => img.id_produto === dataUpdate.codigo
+                  ).length === 1
+                    ? " imagem"
+                    : " imagens"}{" "}
+                  carregadas
+                </span>
+              </div>
             </div>
           </div>
-          <div>
-            <div className="grid grid-cols-1">
-              <Carousel className="mr-10 ml-10 mt-4">
-                <CarouselContent className="flex items-center text-center">
-                  {imgProduct
-                    .filter((img) => img.id_produto === dataUpdate.codigo)
-                    .map((img) => (
-                      <CarouselItem key={img.id_produto}>
-                        <div className="flex w-full text-red-600">
-                          <button
-                            className="ml-auto"
-                            onClick={() =>
-                              confirmToast(String(img.id), sendImg)
-                            }
-                          >
-                            <X />
-                          </button>
-                        </div>
-                        <img src={img.url} className="w-full h-[300px]" />
-                      </CarouselItem>
-                    ))}
-                </CarouselContent>
-                {imgProduct.some(
-                  (img) => img.id_produto === dataUpdate.codigo
-                ) && (
-                  <>
-                    <CarouselPrevious className="bg-black text-white" />
-                    <CarouselNext className="bg-black text-white" />
-                  </>
-                )}
-              </Carousel>
-            </div>
-            <form onSubmit={onSubmit} className="grid grid-cols-1 mt-4">
-              <div className="grid grid-cols-1 mt-4 gap-8">
-                <div className="space-y-2">
-                  <Label>Link da imagem</Label>
-                  <Input
-                    placeholder="Ex: https://i.imgur.com/lxn1B9v.png"
-                    onChange={(e) => setLinkImg(e.target.value)}
-                    type="url"
-                  />
+
+          {/* Conteúdo Principal com Scroll */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="p-6 space-y-6">
+              {/* Galeria de Imagens */}
+              {imgProduct.filter((img) => img.id_produto === dataUpdate.codigo)
+                .length > 0 ? (
+                <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200/50 rounded-2xl p-6 shadow-lg">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl">
+                      <Eye className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">
+                        Imagens Atuais
+                      </h3>
+                      <p className="text-gray-600">
+                        Gerencie as imagens do produto
+                      </p>
+                    </div>
+                  </div>
+
+                  <Carousel className="relative">
+                    <CarouselContent>
+                      {imgProduct
+                        .filter((img) => img.id_produto === dataUpdate.codigo)
+                        .map((img, index) => (
+                          <CarouselItem key={img.id}>
+                            <div className="relative group">
+                              {/* Botão de exclusão */}
+                              <div className="absolute top-4 right-4 z-10">
+                                <button
+                                  onClick={() =>
+                                    confirmToast(String(img.id), sendImg)
+                                  }
+                                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform hover:scale-110"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+
+                              {/* Imagem */}
+                              <div className="relative overflow-hidden rounded-2xl bg-gray-100">
+                                <img
+                                  src={img.url}
+                                  alt={`Imagem ${index + 1}`}
+                                  className="w-full h-[300px] md:h-[400px] object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+
+                                {/* Overlay com informações */}
+                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                  <div className="flex items-center justify-between text-white">
+                                    <span className="text-sm font-medium">
+                                      Imagem {index + 1}
+                                    </span>
+                                    <button
+                                      onClick={() =>
+                                        window.open(img.url, "_blank")
+                                      }
+                                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                                    >
+                                      <ZoomIn className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                    </CarouselContent>
+
+                    <CarouselPrevious className="left-4 bg-white/90 hover:bg-white border-2 border-gray-300 text-gray-700 hover:text-gray-900 shadow-lg" />
+                    <CarouselNext className="right-4 bg-white/90 hover:bg-white border-2 border-gray-300 text-gray-700 hover:text-gray-900 shadow-lg" />
+                  </Carousel>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="p-4 bg-gray-100 rounded-2xl">
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                        Nenhuma imagem encontrada
+                      </h3>
+                      <p className="text-gray-500">
+                        Adicione a primeira imagem do produto usando o
+                        formulário abaixo
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex mt-5 flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                <Button
-                  type="button"
-                  className="bg-red-600 rounded-lg hover:bg-red-600 h-7"
-                  onClick={closeModal}
-                >
-                  Fechar
-                </Button>
+              {/* Formulário para Adicionar Nova Imagem */}
+              <div className="bg-gradient-to-br from-orange-50 via-white to-amber-50 border border-orange-200/50 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl">
+                    <Plus className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      Adicionar Nova Imagem
+                    </h3>
+                    <p className="text-gray-600">
+                      Cole o link da imagem para adicionar à galeria
+                    </p>
+                  </div>
+                </div>
 
-                <Button
-                  type="submit"
-                  className="bg-green-600 rounded-lg hover:bg-green-600 h-7"
-                  disabled={loading}
-                >
-                  Cadastrar Imagem
-                </Button>
+                <form onSubmit={onSubmit} className="space-y-4">
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                      <Link2
+                        className={`h-5 w-5 transition-colors duration-300 ${
+                          inputFocused ? "text-orange-500" : "text-gray-400"
+                        }`}
+                      />
+                    </div>
+                    <Input
+                      type="url"
+                      placeholder="https://exemplo.com/imagem.jpg"
+                      value={linkImg}
+                      onChange={(e) => setLinkImg(e.target.value)}
+                      onFocus={() => setInputFocused(true)}
+                      onBlur={() => setInputFocused(false)}
+                      className={`pl-12 py-4 text-lg border-2 transition-all duration-300 ${
+                        inputFocused
+                          ? "border-orange-500 ring-4 ring-orange-100"
+                          : "border-gray-200 hover:border-orange-300"
+                      } rounded-xl bg-white/80 backdrop-blur-sm`}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      type="button"
+                      onClick={closeModal}
+                      variant="outline"
+                      className="flex-1 py-3 text-base font-semibold border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 rounded-xl transition-all duration-300"
+                    >
+                      Cancelar
+                    </Button>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 py-3 text-base font-semibold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Carregando...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-5 w-5 mr-2" />
+                          Adicionar Imagem
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

@@ -166,12 +166,13 @@ export const NavSite: React.FC<Props> = ({ searchTerm, style }) => {
         <Store className="size-4" />
         <span>Sobre Nós</span>
       </Link>
+
       <Link
         to="/caixa/"
         className="flex items-center gap-2 hover:text-blue-600 transition-colors font-medium"
       >
         <Store className="size-4" />
-        <span>Sobre Nós</span>
+        <span>Caixa</span>
       </Link>
       {isAuthenticated ? (
         <DropdownMenu>
@@ -204,10 +205,15 @@ export const NavSite: React.FC<Props> = ({ searchTerm, style }) => {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={logout}
-              className="hover:bg-red-50 text-red-600 rounded-md"
+              className="group hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 text-red-600 hover:text-red-700 rounded-lg cursor-pointer transition-all duration-300 border border-transparent hover:border-red-200/50 focus:bg-red-50 focus:text-red-700"
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sair</span>
+              <div className="flex items-center w-full">
+                <LogOut className="mr-3 h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-12" />
+                <span className="font-medium">Sair da Conta</span>
+                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="h-1.5 w-1.5 bg-red-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
