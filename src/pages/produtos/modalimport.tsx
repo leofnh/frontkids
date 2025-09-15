@@ -152,7 +152,7 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
   // };
 
   const sendFileWithProgress = async (formData: FormData) => {
-    const response = await fetch("/api/import/products/progress/", {
+    const response = await fetch("/api/import/products/", {
       method: "POST",
       body: formData,
     });
