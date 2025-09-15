@@ -2,8 +2,8 @@ import React, { useState, useRef } from "react";
 import { Modal } from "../../components/modalBase";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
-//import { api } from "../../services/api";
-//import { useData } from "../../components/context";
+import { api } from "../../services/api";
+import { useData } from "../../components/context";
 import {
   Upload,
   FileSpreadsheet,
@@ -16,10 +16,6 @@ import {
   CloudUpload,
   Database,
   ArrowRight,
-  BarChart3,
-  Clock,
-  Zap,
-  Info,
 } from "lucide-react";
 
 interface iModalimport {
@@ -31,11 +27,11 @@ interface iModalimport {
   notifyError: (text: string) => void;
 }
 
-// interface ProductData {
-//   preco: number;
-//   custo: number;
-//   [key: string]: unknown;
-// }
+interface ProductData {
+  preco: number;
+  custo: number;
+  [key: string]: unknown;
+}
 
 export const ModalImportProduct: React.FC<iModalimport> = ({
   isOpen,
@@ -47,40 +43,23 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
 }) => {
   const [fileX, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<{
-    processed: number;
-    total: number;
-    percentage: number;
-    created: number;
-    updated: number;
-    errors: number;
-    status: string;
-  } | null>(null);
-  const [useProgressMode, setUseProgressMode] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  // const { setProduct } = useData() as {
-  //   setProduct: (products: unknown[]) => void;
-  // };
+  const fileInputRef = useRef<HTMLInputElement>(null); // Adiciona um ref ao input de arquivo
+  const { setProduct } = useData() as {
+    setProduct: (products: unknown[]) => void;
+  };
   const onChageFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const fileExtension = file.name.split(".").pop();
       if (fileExtension === "xlsx") {
         setFile(file);
-        // Sugere modo de progresso para arquivos > 2MB (aproximadamente 1000+ produtos)
-        const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > 2) {
-          setUseProgressMode(true);
-        } else {
-          setUseProgressMode(false);
-        }
       } else {
         notifyError(
           "O formato do arquivo é inválido, verifique se está sendo carregado o modelo em xlsx."
         );
         setFile(null);
         if (fileInputRef.current) {
-          fileInputRef.current.value = "";
+          fileInputRef.current.value = ""; // Limpa o input de arquivo
         }
       }
     }
@@ -100,113 +79,35 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
 
   const sendFile = async (formData: FormData) => {
     setLoading(true);
-
     try {
-      if (useProgressMode) {
-        // Modo com progresso para arquivos grandes
-        await sendFileWithProgress(formData);
+      const response = await api.post("api/import/products/", formData);
+      const result = response.data;
+      const status = result.status;
+      const alert = result.msg;
+      if (status === "sucesso") {
+        notifySuccess(alert);
+        closeModal();
+        const newData = result.dados;
+        const formatedProducts = newData.map((product: ProductData) => ({
+          ...product,
+          preco: product.preco.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          custo: product.custo.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+        }));
+        setProduct(formatedProducts);
       } else {
-        // Modo padrão com estatísticas
-        await sendFileWithProgress(formData);
+        notifyError(alert);
       }
     } catch (error) {
       console.log(error);
       notifyError("Ocorreu um erro ao enviar o arquivo.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // const sendFileStandard = async (formData: FormData) => {
-  //   const response = await api.post("api/import/products/", formData);
-  //   const result = response.data;
-
-  //   if (result.status === "sucesso") {
-  //     const stats = result.statistics;
-  //     let message = `Importação concluída! ${stats.created} produtos criados, ${stats.updated} atualizados.`;
-
-  //     if (stats.errors > 0) {
-  //       message += ` ${stats.errors} produtos com erro.`;
-  //       notifyError(message);
-  //     } else {
-  //       notifySuccess(message);
-  //     }
-
-  //     closeModal();
-  //     const newData = result.dados;
-  //     const formatedProducts = newData.map((product: ProductData) => ({
-  //       ...product,
-  //       preco: product.preco.toLocaleString("pt-BR", {
-  //         style: "currency",
-  //         currency: "BRL",
-  //       }),
-  //       custo: product.custo.toLocaleString("pt-BR", {
-  //         style: "currency",
-  //         currency: "BRL",
-  //       }),
-  //     }));
-  //     setProduct(formatedProducts);
-  //   } else {
-  //     notifyError(result.msg);
-  //   }
-  // };
-
-  const sendFileWithProgress = async (formData: FormData) => {
-    const response = await fetch(
-      "https://api.paulakids.aelsistemas.com/api/import/products/",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Erro na requisição");
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error("Não foi possível ler a resposta");
-    }
-
-    let buffer = "";
-
-    let reading = true;
-    while (reading) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        reading = false;
-        break;
-      }
-
-      const chunk = new TextDecoder().decode(value);
-      buffer += chunk;
-
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; // Mantém a última linha incompleta
-
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          try {
-            const data = JSON.parse(line.substring(6));
-
-            if (data.status === "progresso") {
-              setProgress(data.progress);
-            } else if (data.status === "concluido") {
-              notifySuccess("Importação finalizada com sucesso!");
-              closeModal();
-              // Recarregar produtos
-              window.location.reload();
-            } else if (data.status === "erro") {
-              notifyError(data.msg);
-              break;
-            }
-          } catch (e) {
-            console.warn("Erro ao parsear linha:", line);
-          }
-        }
-      }
     }
   };
 
@@ -245,15 +146,15 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
 
         {/* Content - Scrollable Area */}
         <div
-          className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-300 scrollbar-track-brand-50 hover:scrollbar-thumb-brand-400"
+          className="flex-1 overflow-y-auto"
           style={{
             scrollbarWidth: "thin",
-            scrollbarColor: "#d1d5db #f8fafc",
+            scrollbarColor: "#cbd5e1 #f8fafc",
           }}
         >
           <form
             onSubmit={onSubmit}
-            className="p-4 sm:p-6 pr-2 sm:pr-4 space-y-4 sm:space-y-6"
+            className="p-4 sm:p-6 space-y-4 sm:space-y-6"
           >
             {/* Instructions */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
@@ -269,118 +170,11 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
                   <ul className="text-xs text-blue-700 mt-2 space-y-1">
                     <li>• Apenas arquivos Excel (.xlsx) são aceitos</li>
                     <li>• Certifique-se de usar o modelo correto</li>
-                    <li>
-                      • Dados existentes serão atualizados automaticamente
-                    </li>
-                    <li className="hidden sm:list-item">
-                      • Arquivos grandes (&gt;2MB) usam modo de progresso
-                    </li>
+                    <li>• Dados existentes serão atualizados</li>
                   </ul>
                 </div>
               </div>
             </div>
-
-            {/* Mode Selection for Large Files */}
-            {fileX && useProgressMode && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 sm:p-4">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <Info
-                    size="18"
-                    className="text-yellow-600 mt-0.5 flex-shrink-0 sm:w-5 sm:h-5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-yellow-800">
-                      Arquivo Grande Detectado
-                    </p>
-                    <p className="text-xs text-yellow-700 mt-1 mb-3">
-                      Seu arquivo é grande (
-                      {(fileX.size / (1024 * 1024)).toFixed(1)}MB). Recomendamos
-                      o modo de progresso para melhor experiência.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setUseProgressMode(false)}
-                        className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                          !useProgressMode
-                            ? "bg-blue-500 text-white"
-                            : "bg-white text-blue-600 border border-blue-200 hover:bg-blue-50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <Zap size="14" />
-                          <span className="hidden xs:inline">Modo </span>Rápido
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUseProgressMode(true)}
-                        className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                          useProgressMode
-                            ? "bg-green-500 text-white"
-                            : "bg-white text-green-600 border border-green-200 hover:bg-green-50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <BarChart3 size="14" />
-                          Com Progresso
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Progress Display */}
-            {loading && progress && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                  <Clock
-                    size="16"
-                    className="text-green-600 flex-shrink-0 sm:w-[18px] sm:h-[18px]"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-semibold text-green-800">
-                      Importando Produtos...
-                    </p>
-                    <p className="text-xs text-green-600">
-                      {progress.processed} de {progress.total} produtos (
-                      {progress.percentage.toFixed(1)}%)
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-full bg-green-200 rounded-full h-2 mb-3">
-                  <div
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${progress.percentage}%` }}
-                  ></div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-1 sm:gap-2 text-xs">
-                  <div className="text-center p-1.5 sm:p-2 bg-white rounded border">
-                    <div className="font-semibold text-green-600 text-sm sm:text-base">
-                      {progress.created}
-                    </div>
-                    <div className="text-green-500 text-xs">Criados</div>
-                  </div>
-                  <div className="text-center p-1.5 sm:p-2 bg-white rounded border">
-                    <div className="font-semibold text-blue-600 text-sm sm:text-base">
-                      {progress.updated}
-                    </div>
-                    <div className="text-blue-500 text-xs">Atualizados</div>
-                  </div>
-                  <div className="text-center p-1.5 sm:p-2 bg-white rounded border">
-                    <div className="font-semibold text-red-600 text-sm sm:text-base">
-                      {progress.errors}
-                    </div>
-                    <div className="text-red-500 text-xs">Erros</div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* File Upload Area */}
             <div className="space-y-3 sm:space-y-4">
@@ -567,8 +361,6 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
                 className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 text-sm sm:text-base ${
                   loading || !fileX
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : useProgressMode
-                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:shadow-green-500/25"
                     : "bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white hover:shadow-brand-500/25"
                 }`}
               >
@@ -578,33 +370,14 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
                       size="16"
                       className="animate-spin sm:w-[18px] sm:h-[18px]"
                     />
-                    <span className="hidden sm:inline">
-                      {useProgressMode
-                        ? "Importando com progresso..."
-                        : "Importando..."}
-                    </span>
-                    <span className="sm:hidden">
-                      {useProgressMode ? "Progresso..." : "Importando..."}
-                    </span>
+                    <span className="hidden sm:inline">Importando...</span>
+                    <span className="sm:hidden">Importando...</span>
                   </>
                 ) : (
                   <>
-                    {useProgressMode ? (
-                      <BarChart3
-                        size="16"
-                        className="sm:w-[18px] sm:h-[18px]"
-                      />
-                    ) : (
-                      <Upload size="16" className="sm:w-[18px] sm:h-[18px]" />
-                    )}
-                    <span className="hidden sm:inline">
-                      {useProgressMode
-                        ? "Importar com Progresso"
-                        : "Importar Produtos"}
-                    </span>
-                    <span className="sm:hidden">
-                      {useProgressMode ? "Com Progresso" : "Importar"}
-                    </span>
+                    <Upload size="16" className="sm:w-[18px] sm:h-[18px]" />
+                    <span className="hidden sm:inline">Importar Produtos</span>
+                    <span className="sm:hidden">Importar</span>
                   </>
                 )}
               </Button>
