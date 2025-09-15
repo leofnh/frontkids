@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import "react-quill/dist/quill.snow.css";
+//import "react-quill/dist/quill.snow.css";
 import { Main } from "../../components/main";
 import { FooterSite, NavSite } from "../../components/navsite";
 import { useData } from "../../components/context";
@@ -18,41 +18,41 @@ export function SobreNos() {
     notifyError: (text: string) => string;
   };
 
-  const handleChange = (value: string) => {
-    setContent(value);
-  };
+  // const handleChange = (value: string) => {
+  //   setContent(value);
+  // };
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      [{ font: [] }],
-      [{ size: ["small", false, "large", "huge"] }],
-      [{ color: [] }, { background: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      ["link", "image", "video"],
-      ["clean"],
-    ],
-  };
+  // const modules = {
+  //   toolbar: [
+  //     [{ header: [1, 2, 3, false] }],
+  //     [{ font: [] }],
+  //     [{ size: ["small", false, "large", "huge"] }],
+  //     [{ color: [] }, { background: [] }],
+  //     ["bold", "italic", "underline", "strike"],
+  //     [{ list: "ordered" }, { list: "bullet" }],
+  //     [{ align: [] }],
+  //     ["link", "image", "video"],
+  //     ["clean"],
+  //   ],
+  // };
 
-  const formats = [
-    "header",
-    "font",
-    "size",
-    "color",
-    "background",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "align",
-    "link",
-    "image",
-    "video",
-  ];
+  // const formats = [
+  //   "header",
+  //   "font",
+  //   "size",
+  //   "color",
+  //   "background",
+  //   "bold",
+  //   "italic",
+  //   "underline",
+  //   "strike",
+  //   "list",
+  //   "bullet",
+  //   "align",
+  //   "link",
+  //   "image",
+  //   "video",
+  // ];
 
   const handleSavePage = async () => {
     const data = new FormData();
@@ -101,12 +101,12 @@ export function SobreNos() {
           <>
             <h2>Edite o "Sobre Nós"</h2>
             <div className="editor-container">
-              <ReactQuill
+              {/* <ReactQuill
                 value={content}
                 onChange={handleChange}
                 modules={modules}
                 formats={formats}
-              />
+              /> */}
             </div>
             <div className="ml-auto mt-2">
               <Button
