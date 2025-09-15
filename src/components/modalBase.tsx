@@ -1,20 +1,48 @@
-import ReactModal, { Props as ModalProps } from "react-modal";
+import React, { useEffect } from "react";
 
-//import styles from "./styles.module.scss";
+interface ModalProps {
+  isOpen: boolean;
+  onRequestClose: () => void;
+  children: React.ReactNode;
+  shouldCloseOnOverlayClick?: boolean;
+  shouldCloseOnEsc?: boolean;
+}
 
-ReactModal.setAppElement("#root");
+export function Modal({
+  children,
+  isOpen,
+  onRequestClose,
+  shouldCloseOnOverlayClick = true,
+  shouldCloseOnEsc = true,
+}: ModalProps) {
+  // Handle ESC key press
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (shouldCloseOnEsc && event.key === "Escape") {
+        onRequestClose();
+      }
+    };
 
-export function Modal({ children, ...rest }: ModalProps) {
+    if (isOpen) {
+      document.addEventListener("keydown", handleEsc);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onRequestClose, shouldCloseOnEsc]);
+
+  if (!isOpen) return null;
+
   return (
-    <ReactModal
-      className="gap-4 max-w-full max-h-full overflow-y-auto sm:max-w-lg sm:rounded-lg p-6"
-      //className="max-w-full sm:max-w-lg max-h-[90vh] overflow-y-auto sm:rounded-lg bg-white p-6"
-      overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-      shouldCloseOnOverlayClick={true}
-      shouldCloseOnEsc={true}
-      {...rest}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={shouldCloseOnOverlayClick ? onRequestClose : undefined}
     >
-      <div className="max-h-[80vh] overflow-y-auto">{children}</div>
-    </ReactModal>
+      <div onClick={(e) => e.stopPropagation()}>{children}</div>
+    </div>
   );
 }

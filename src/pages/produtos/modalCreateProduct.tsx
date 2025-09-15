@@ -173,6 +173,7 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                       <Input
                         placeholder="Sequência (Ex: 1)"
                         className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                        defaultValue="20000"
                         {...register("sequencia")}
                       />
                     )}
