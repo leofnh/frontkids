@@ -25,9 +25,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  GripVertical,
 } from "lucide-react";
 import { api } from "../../services/api";
 import { toast, ToastContainer } from "react-toastify";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 interface ProductAdmin {
   id: number;
@@ -138,6 +140,48 @@ export function SiteConfig() {
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.total_pages) {
       fetchProducts(newPage, searchTerm);
+    }
+  };
+
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+
+    if (sourceIndex === destinationIndex) return;
+
+    // Reordenar produtos localmente primeiro para feedback imediato
+    const sortedActiveProducts = activeProducts.sort((a, b) => a.sequencia - b.sequencia);
+    const reorderedProducts = Array.from(sortedActiveProducts);
+    const [removed] = reorderedProducts.splice(sourceIndex, 1);
+    reorderedProducts.splice(destinationIndex, 0, removed);
+
+    // Calcular novas sequências
+    const updatedProducts = reorderedProducts.map((product, index) => ({
+      ...product,
+      sequencia: index + 1,
+    }));
+
+    // Atualizar estado local imediatamente
+    setActiveProducts(updatedProducts);
+
+    try {
+      // Enviar apenas as mudanças necessárias para o backend
+      const productsToUpdate = updatedProducts.map((product, index) => ({
+        id: product.id,
+        sequencia: index + 1,
+      }));
+
+      await api.post("api/adm/produtos/atualizar-sequencia/", {
+        produtos: productsToUpdate,
+      });
+
+      toast.success("Sequência dos produtos atualizada com sucesso!");
+    } catch (error) {
+      // Em caso de erro, reverte o estado local
+      fetchProducts(1, searchTerm);
+      toast.error("Erro ao atualizar sequência. Recarregando produtos...");
     }
   };
 
@@ -481,7 +525,7 @@ export function SiteConfig() {
                       Produtos Ativos na Loja
                     </CardTitle>
                     <p className="text-brown-600 mt-1">
-                      {activeProducts.length} produtos visíveis para os clientes
+                      {activeProducts.length} produtos visíveis para os clientes - Arraste para reordenar
                     </p>
                   </div>
                 </div>
@@ -501,29 +545,87 @@ export function SiteConfig() {
                     </p>
                   </div>
                 </div>
+              ) : activeProducts.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 border-2 border-dashed border-gray-300">
+                    <EyeOff className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                      Nenhum produto ativo
+                    </h3>
+                    <p className="text-gray-500">
+                      {searchTerm ? (
+                        <>
+                          Nenhum produto encontrado para "{searchTerm}".
+                          <br />
+                          Tente buscar por outro termo ou limpe a pesquisa.
+                        </>
+                      ) : (
+                        <>
+                          Não há produtos visíveis na loja no momento.
+                          <br />
+                          Ative alguns produtos na seção abaixo para começar.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
               ) : (
-                <div className="space-y-4">
-                  {activeProducts
-                    .sort((a, b) => a.sequencia - b.sequencia)
-                    .map((product, index) => {
-                      const isFirst = index === 0;
-                      const isLast = index === activeProducts.length - 1;
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="active-products">
+                    {(provided, snapshot) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className={`space-y-4 transition-all duration-200 ${
+                          snapshot.isDraggingOver
+                            ? "bg-emerald-50/50 border-2 border-dashed border-emerald-300 rounded-xl p-4"
+                            : ""
+                        }`}
+                      >
+                        {activeProducts
+                          .sort((a, b) => a.sequencia - b.sequencia)
+                          .map((product, index) => {
+                            const isFirst = index === 0;
+                            const isLast = index === activeProducts.length - 1;
 
-                      return (
-                        <div
-                          key={product.id}
-                          className="group relative overflow-hidden bg-gradient-to-r from-white to-emerald-50/30 border-2 border-emerald-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                        >
-                          {/* Indicador de posição */}
-                          <div className="absolute top-0 left-0 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white px-3 py-1 rounded-br-lg font-bold text-sm">
-                            #{index + 1}
-                          </div>
+                            return (
+                              <Draggable
+                                key={product.id.toString()}
+                                draggableId={product.id.toString()}
+                                index={index}
+                              >
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={`group relative overflow-hidden bg-gradient-to-r from-white to-emerald-50/30 border-2 border-emerald-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+                                      snapshot.isDragging
+                                        ? "scale-105 shadow-2xl rotate-2 z-50"
+                                        : "hover:scale-[1.02]"
+                                    }`}
+                                  >
+                                    {/* Indicador de posição */}
+                                    <div className="absolute top-0 left-0 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white px-3 py-1 rounded-br-lg font-bold text-sm">
+                                      #{index + 1}
+                                    </div>
 
-                          <div className="p-6 pt-8">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-6">
-                                {/* Controles de movimento */}
-                                <div className="flex flex-col gap-2">
+                                    <div className="p-6 pt-8">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-6">
+                                          {/* Handle de Drag */}
+                                          <div
+                                            {...provided.dragHandleProps}
+                                            className="cursor-grab active:cursor-grabbing p-2 hover:bg-emerald-100 rounded-lg transition-colors group/drag"
+                                          >
+                                            <GripVertical 
+                                              className={`h-6 w-6 text-emerald-400 group-hover/drag:text-emerald-600 transition-colors ${
+                                                snapshot.isDragging ? 'text-emerald-600' : ''
+                                              }`} 
+                                            />
+                                          </div>
+
+                                          {/* Controles de movimento (desabilitados quando drag está ativo) */}
+                                          <div className="flex flex-col gap-2 opacity-30 pointer-events-none">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -705,37 +807,41 @@ export function SiteConfig() {
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-
-                  {activeProducts.length === 0 && !loading && (
-                    <div className="text-center py-16">
-                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 border-2 border-dashed border-gray-300">
-                        <EyeOff className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                          Nenhum produto ativo
-                        </h3>
-                        <p className="text-gray-500">
-                          {searchTerm ? (
-                            <>
-                              Nenhum produto encontrado para "{searchTerm}".
-                              <br />
-                              Tente buscar por outro termo ou limpe a pesquisa.
-                            </>
-                          ) : (
-                            <>
-                              Não há produtos visíveis na loja no momento.
-                              <br />
-                              Ative alguns produtos na seção abaixo para
-                              começar.
-                            </>
-                          )}
-                        </p>
+                                  </div>
+                                )}
+                              </Draggable>
+                            );
+                          })}
+                        {provided.placeholder}
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </Droppable>
+                        {activeProducts.length === 0 && !loading && (
+                          <div className="text-center py-16">
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 border-2 border-dashed border-gray-300">
+                              <EyeOff className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                                Nenhum produto ativo
+                              </h3>
+                              <p className="text-gray-500">
+                                {searchTerm ? (
+                                  <>
+                                    Nenhum produto encontrado para "{searchTerm}".
+                                    <br />
+                                    Tente buscar por outro termo ou limpe a pesquisa.
+                                  </>
+                                ) : (
+                                  <>
+                                    Não há produtos visíveis na loja no momento.
+                                    <br />
+                                    Ative alguns produtos na seção abaixo para
+                                    começar.
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        )}
               )}
             </CardContent>
           </Card>
