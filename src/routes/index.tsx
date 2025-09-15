@@ -12,8 +12,8 @@ import { CarrinhoPage } from "../pages/loja/carrinho";
 import { DashSite } from "../pages/sitedash/index";
 import { MeusPedidos } from "../pages/loja/meuspedidos";
 import { SiteConfig } from "../pages/siteconfig";
-//import { SobreNos } from "../pages/siteconfig/sobrenos";
-//import { SobreNosSite } from "../pages/loja/sobrenos";
+import { SobreNos } from "../pages/siteconfig/sobrenos";
+import { SobreNosSite } from "../pages/loja/sobrenos";
 import { DetalhesProduto } from "../pages/loja/detalhes";
 
 type userDataType = {
@@ -41,7 +41,7 @@ export default function CustomRoutes() {
       <Route path="/loja/" element={<LojaProdutos />} />
       <Route path="/loja/carrinho/" element={<CarrinhoPage />} />
       <Route path="/loja/meus/pedidos/" element={<MeusPedidos />} />
-      {/* <Route path="loja/sobrenos/" element={<SobreNosSite />} /> */}
+      <Route path="loja/sobrenos/" element={<SobreNosSite />} />
       <Route path="/detalhes/" element={<DetalhesProduto />} />
 
       {isAuthenticated ? (
@@ -55,7 +55,7 @@ export default function CustomRoutes() {
             <Route path="/dashboard/" element={<Dashboard />} />
             <Route path="/vendas/site/" element={<DashSite />} />
             <Route path="/config/site/" element={<SiteConfig />} />
-            {/* <Route path="/config/sobrenos/" element={<SobreNos />} /> */}
+            <Route path="/config/sobrenos/" element={<SobreNos />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/loja/" />} />
