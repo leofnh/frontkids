@@ -152,10 +152,13 @@ export const ModalImportProduct: React.FC<iModalimport> = ({
   // };
 
   const sendFileWithProgress = async (formData: FormData) => {
-    const response = await fetch("/api/import/products/", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      "https://api.paulakids.aelsistemas.com/api/import/products/",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Erro na requisição");
