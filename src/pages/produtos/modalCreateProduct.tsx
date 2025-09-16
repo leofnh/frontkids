@@ -169,14 +169,22 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                         Ativar na loja online
                       </span>
                     </div>
-                    {loja && (
+                    <Input
+                      placeholder="Sequência (Ex: 1)"
+                      className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                        !loja && "hidden"
+                      } `}
+                      defaultValue="20000"
+                      {...register("sequencia")}
+                    />
+                    {/* {loja && (
                       <Input
                         placeholder="Sequência (Ex: 1)"
                         className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
                         defaultValue="20000"
                         {...register("sequencia")}
                       />
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
