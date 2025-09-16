@@ -6,6 +6,7 @@ interface ModalProps {
   children: React.ReactNode;
   shouldCloseOnOverlayClick?: boolean;
   shouldCloseOnEsc?: boolean;
+  overlayClassName?: string;
 }
 
 export function Modal({
@@ -14,6 +15,7 @@ export function Modal({
   onRequestClose,
   shouldCloseOnOverlayClick = true,
   shouldCloseOnEsc = true,
+  overlayClassName,
 }: ModalProps) {
   // Handle ESC key press
   useEffect(() => {
@@ -39,7 +41,12 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      //className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      //overlayClassName={overlayClassName}
+      className={
+        overlayClassName ||
+        "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      }
       onClick={shouldCloseOnOverlayClick ? onRequestClose : undefined}
     >
       <div onClick={(e) => e.stopPropagation()}>{children}</div>
