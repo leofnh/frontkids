@@ -10,6 +10,7 @@ import {
   UseFormRegister,
   UseFormSetValue,
   UseFormWatch,
+  FieldErrors,
 } from "react-hook-form";
 import { ProductFormData } from "../../components/types";
 
@@ -18,6 +19,7 @@ interface iModalCreateProduct {
   update: boolean;
   setValue: UseFormSetValue<ProductFormData>;
   watch: UseFormWatch<ProductFormData>;
+  formStateErrors?: FieldErrors<ProductFormData>;
   dataUpdate: ProductFormData;
   closeModal: () => void;
   titleModal: string;
@@ -30,11 +32,10 @@ interface iModalCreateProduct {
     ref: string;
     preco: string;
     custo: string;
-    estoque: string;
+    estoque: number;
     produto: string;
     loja: boolean;
     cor: string;
-    sequencia: string;
     descricao: string;
   }) => void;
   register: UseFormRegister<ProductFormData>;
@@ -52,13 +53,10 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
   dataUpdate,
   setValue,
   watch,
+  formStateErrors,
 }) => {
   useEffect(() => {
     if (update) {
-      // Define o valor dos campos do formulário com os dados de dataUpdate
-      // Object.keys(dataUpdate).forEach((key) => {
-      //   setValue(key, dataUpdate[key]);
-      // });
       (Object.keys(dataUpdate) as (keyof ProductFormData)[]).forEach((key) => {
         setValue(key, dataUpdate[key]);
       });
@@ -70,15 +68,15 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
       setValue("ref", "");
       setValue("preco", "");
       setValue("custo", "");
-      setValue("estoque", "");
+      setValue("estoque", 0);
       setValue("produto", "");
       setValue("cor", "");
       setValue("descricao", "");
       setValue("loja", false);
     }
   }, [update, dataUpdate, setValue]);
-  //const [iCusto, setCusto] = useState("");
-  // const [iPreco, setPreco] = useState("");
+
+  const erros = formStateErrors || {};
   const loja = watch("loja");
 
   const handleSwitchChange = () => {
@@ -140,7 +138,6 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
               <h3 className="text-lg font-medium text-brown-700 border-b border-brand-200 pb-2">
                 Informações Principais
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Nome do Produto - destaque com mais espaço */}
                 <div className="space-y-2 lg:col-span-2">
@@ -149,9 +146,16 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                   </Label>
                   <Input
                     placeholder="Ex: Blusa Feminina..."
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.produto ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     {...register("produto")}
                   />
+                  {erros.produto && (
+                    <span className="text-red-600 text-sm">
+                      {erros.produto.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Configurações da loja */}
@@ -169,22 +173,14 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                         Ativar na loja online
                       </span>
                     </div>
-                    <Input
+                    {/* <Input
                       placeholder="Sequência (Ex: 1)"
                       className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
                         !loja && "hidden"
                       } `}
                       defaultValue="20000"
                       {...register("sequencia")}
-                    />
-                    {/* {loja && (
-                      <Input
-                        placeholder="Sequência (Ex: 1)"
-                        className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
-                        defaultValue="20000"
-                        {...register("sequencia")}
-                      />
-                    )} */}
+                    /> */}
                   </div>
                 </div>
               </div>
@@ -199,34 +195,57 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Marca */}
                 <div className="space-y-2">
-                  <Label className="text-brown-700 font-medium">Marca</Label>
+                  <Label className="text-brown-700 font-medium">Marca *</Label>
                   <Input
                     placeholder="Ex: Arezzo, Nike..."
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.marca ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     {...register("marca")}
                   />
+                  {erros.marca && (
+                    <span className="text-red-600 text-sm">
+                      {erros.marca.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Tamanho */}
                 <div className="space-y-2">
-                  <Label className="text-brown-700 font-medium">Tamanho</Label>
+                  <Label className="text-brown-700 font-medium">
+                    Tamanho *
+                  </Label>
                   <Input
                     {...register("tamanho")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.tamanho ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: G, 40, M"
                   />
+                  {erros.tamanho && (
+                    <span className="text-red-600 text-sm">
+                      {erros.tamanho.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Referência */}
                 <div className="space-y-2">
                   <Label className="text-brown-700 font-medium">
-                    Referência
+                    Referência *
                   </Label>
                   <Input
                     {...register("ref")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.ref ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: A119030024"
                   />
+                  {erros.ref && (
+                    <span className="text-red-600 text-sm">
+                      {erros.ref.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Cor */}
@@ -244,11 +263,13 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                 {/* Código de barras */}
                 <div className="space-y-2 md:col-span-2">
                   <Label className="text-brown-700 font-medium">
-                    Código de Barras
+                    Código de Barras *
                   </Label>
                   <Input
                     {...register("codigo")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.codigo ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: 7900029868144"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -256,6 +277,11 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                       }
                     }}
                   />
+                  {erros.codigo && (
+                    <span className="text-red-600 text-sm">
+                      {erros.codigo.message}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -276,9 +302,16 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                     onInput={handleChangePrice}
                     value={watch("preco")}
                     {...register("preco")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.preco ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: 79,90"
                   />
+                  {erros.preco && (
+                    <span className="text-red-600 text-sm">
+                      {erros.preco.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Custo */}
@@ -287,24 +320,38 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
                   <Input
                     {...register("custo")}
                     value={watch("custo")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.custo ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: 39,90"
                     onInput={handleCustoChange}
                   />
+                  {erros.custo && (
+                    <span className="text-red-600 text-sm">
+                      {erros.custo.message}
+                    </span>
+                  )}
                 </div>
 
                 {/* Estoque */}
                 <div className="space-y-2">
                   <Label className="text-brown-700 font-medium">
-                    Quantidade em Estoque
+                    Quantidade em Estoque *
                   </Label>
                   <Input
                     type="number"
-                    {...register("estoque")}
-                    className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                    {...register("estoque", { valueAsNumber: true })}
+                    className={`border-brand-200 focus:border-brand-400 focus:ring-brand-200 ${
+                      erros.estoque ? "border-red-300 focus:border-red-400" : ""
+                    }`}
                     placeholder="Ex: 10"
                     min="0"
                   />
+                  {erros.estoque && (
+                    <span className="text-red-600 text-sm">
+                      {erros.estoque.message}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

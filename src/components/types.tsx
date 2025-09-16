@@ -99,11 +99,11 @@ export type ProductFormData = {
   tamanho: string;
   preco: string;
   custo: string;
-  estoque: string;
+  estoque: number;
   produto: string;
   cor: string;
   descricao: string;
-  sequencia: string;
+  //sequencia: string;
 };
 
 export type DataCliente = {

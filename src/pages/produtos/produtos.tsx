@@ -3,7 +3,6 @@ import { Nav } from "../../components/nav";
 import { toast, ToastContainer } from "react-toastify";
 import { api } from "../../services/api";
 import { Button } from "../../components/ui/button";
-import { ModalCreateProduct } from "./modalCreateProduct";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,20 +19,21 @@ import {
 } from "../../components/types";
 import { TableClientCondicional } from "./modalcond";
 import { TableCondicionais } from "./condicionais";
+import { ModalCreateProduct } from "./modalCreateProduct";
 
 const infoSendSchema = z.object({
-  marca: z.string().min(1),
-  tamanho: z.string().min(1),
-  codigo: z.string().min(1),
-  ref: z.string().min(1),
-  preco: z.string().min(1),
-  custo: z.string().min(1),
-  estoque: z.string().min(1),
-  produto: z.string().min(1),
+  ref: z.string().min(1, "Referência é obrigatória"),
+  loja: z.boolean(),
+  marca: z.string().min(1, "Marca é obrigatória"),
+  codigo: z.string().min(1, "Código é obrigatório"),
+  tamanho: z.string().min(1, "Tamanho é obrigatório"),
+  preco: z.string().min(1, "Preço é obrigatório"),
+  custo: z.string().min(1, "Custo é obrigatório"),
+  estoque: z.number().min(1, "Estoque é obrigatório"),
+  produto: z.string().min(1, "Nome do produto é obrigatório"),
   cor: z.string(),
   descricao: z.string(),
-  sequencia: z.string(),
-  loja: z.boolean(),
+  //sequencia: z.string(),
 });
 
 type infoSendSchema = z.infer<typeof infoSendSchema>;
@@ -45,7 +45,13 @@ export function Produtos() {
     imgProduct: ImgProductType[];
     setImgProduct: React.Dispatch<React.SetStateAction<ImgProductType[]>>;
   };
-  const { register, handleSubmit, setValue, watch } = useForm<infoSendSchema>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<infoSendSchema>({
     resolver: zodResolver(infoSendSchema),
   });
 
@@ -68,11 +74,11 @@ export function Produtos() {
     tamanho: "",
     preco: "",
     custo: "",
-    estoque: "",
+    estoque: 0,
     produto: "",
     cor: "",
     descricao: "",
-    sequencia: "",
+    // sequencia: "",
   });
 
   const [isImgOpen, setImgOpen] = useState(false);
@@ -94,13 +100,16 @@ export function Produtos() {
   const openModalImport = () => {
     setModalImport(!isModalImport);
   };
+
   const openModal = () => {
     setCreateObject(!isOpenCreateObject);
   };
+
   const notifySuccess = (text: string) =>
     toast.success(text, {
       theme: "light",
     });
+
   const notifyError = (text: string) =>
     toast.error(text, {
       theme: "light",
@@ -132,25 +141,6 @@ export function Produtos() {
         if (statusApi == "erro") {
           notifyError(alertView);
         } else if (statusApi == "sucesso") {
-          {
-            /*  const formattedData = {
-            produto: newData["produto"],
-            marca: newData["marca"],
-            preco: newData["preco"].toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }),
-            custo: newData["custo"].toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }),
-            tamanho: newData["tamanho"],
-            codigo: newData["codigo"],
-            ref: newData["ref"],
-            estoque: newData["estoque"],
-            loja: newData["loja"],
-          }; */
-          }
           //setProduct((prevDataProduct) => [...prevDataProduct, formattedData]);
           const formatedProducts = productsData.map((product: ProductType) => ({
             ...product,
@@ -272,11 +262,11 @@ export function Produtos() {
                           tamanho: "",
                           preco: "",
                           custo: "",
-                          estoque: "",
+                          estoque: 0,
                           produto: "",
                           cor: "",
                           descricao: "",
-                          sequencia: "",
+                          //  sequencia: "",
                         });
                       }}
                     >
@@ -376,6 +366,7 @@ export function Produtos() {
           dataUpdate={dataUpdate}
           setValue={setValue}
           watch={watch}
+          formStateErrors={errors}
         />
 
         <ModalImportProduct
