@@ -21,6 +21,16 @@ import { TableClientCondicional } from "./modalcond";
 import { TableCondicionais } from "./condicionais";
 import { ModalCreateProduct } from "./modalCreateProduct";
 
+interface ProductTable {
+  marca: string;
+  codigo: string;
+  ref?: string;
+  produto?: string;
+  estoque?: string | number;
+  preco?: string | number;
+  [key: string]: string | number | undefined;
+}
+
 const infoSendSchema = z.object({
   ref: z.string().min(1, "Referência é obrigatória"),
   loja: z.boolean(),
@@ -33,15 +43,18 @@ const infoSendSchema = z.object({
   produto: z.string().min(1, "Nome do produto é obrigatório"),
   cor: z.string(),
   descricao: z.string(),
-  //sequencia: z.string(),
+  sequencia: z.number(),
+  id: z.number().optional(),
+  cadastro: z.string().optional(),
+  update: z.string().optional(),
 });
 
 type infoSendSchema = z.infer<typeof infoSendSchema>;
 
 export function Produtos() {
   const { dataProduct, setProduct, imgProduct, setImgProduct } = useData() as {
-    dataProduct: ProductType[];
-    setProduct: React.Dispatch<React.SetStateAction<ProductType[]>>;
+    dataProduct: ProductTable[];
+    setProduct: React.Dispatch<React.SetStateAction<ProductTable[]>>;
     imgProduct: ImgProductType[];
     setImgProduct: React.Dispatch<React.SetStateAction<ImgProductType[]>>;
   };
@@ -63,7 +76,6 @@ export function Produtos() {
   >([]);
   const [isPage, setPage] = useState(1);
   const [isOpenCreateObject, setCreateObject] = useState(false);
-  //const [valueUpdate, setValueUpdate] = useState(0);
   const [isModalImport, setModalImport] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<ProductFormData>({
@@ -78,7 +90,7 @@ export function Produtos() {
     produto: "",
     cor: "",
     descricao: "",
-    // sequencia: "",
+    sequencia: 0,
   });
 
   const [isImgOpen, setImgOpen] = useState(false);
@@ -136,12 +148,10 @@ export function Produtos() {
         const newDataResp = response.data;
         const alertView = newDataResp["msg"];
         const statusApi = newDataResp["status"];
-        //const newData = newDataResp["dados"];
         const productsData = newDataResp["dados"];
         if (statusApi == "erro") {
           notifyError(alertView);
         } else if (statusApi == "sucesso") {
-          //setProduct((prevDataProduct) => [...prevDataProduct, formattedData]);
           const formatedProducts = productsData.map((product: ProductType) => ({
             ...product,
             preco: product.preco.toLocaleString("pt-BR", {
@@ -266,7 +276,7 @@ export function Produtos() {
                           produto: "",
                           cor: "",
                           descricao: "",
-                          //  sequencia: "",
+                          sequencia: 0,
                         });
                       }}
                     >
@@ -367,6 +377,7 @@ export function Produtos() {
           setValue={setValue}
           watch={watch}
           formStateErrors={errors}
+          loading={loading}
         />
 
         <ModalImportProduct
@@ -381,8 +392,6 @@ export function Produtos() {
         <ModalImage
           isOpen={isImgOpen}
           closeModal={closeModalImg}
-          titleModal="Adicione imagens ao produto"
-          descriptionModal="Faça upload antes de enviar o link."
           notifyError={notifyError}
           notifySuccess={notifySuccess}
           imgProduct={imgProduct}

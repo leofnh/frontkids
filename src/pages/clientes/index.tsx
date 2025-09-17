@@ -23,7 +23,7 @@ const infoSendSchema = z.object({
   sapato: z.string().min(1, "Campo obrigatório"),
   roupa: z.string().min(1, "Campo obrigatório"),
   telefone: z.string().min(1, "Campo obrigatório"),
-  id: z.string(),
+  id: z.number(),
 });
 type infoSendSchema = z.infer<typeof infoSendSchema>;
 
@@ -73,12 +73,14 @@ export function Clientes() {
     setCreateObject(!isOpenCreateObject);
     setIsUpdate(false);
   };
+
   const notifySuccess = (text: string) =>
     toast.success(text, {
       theme: "light",
       autoClose: 500,
       position: "top-left",
     });
+
   const notifyError = (text: string) =>
     toast.error(text, {
       theme: "light",
@@ -100,20 +102,7 @@ export function Clientes() {
 
     const sendNewClient = async () => {
       try {
-        const response = await toast.promise(requestMethod(url, data), {
-          pending: {
-            render: "Carregando...",
-            autoClose: 3000,
-          },
-          success: {
-            render: "Dados enviado com sucesso!",
-            autoClose: 1000,
-          },
-          error: {
-            render: "Erro ao enviar os dados...",
-            autoClose: 1500,
-          },
-        });
+        const response = await requestMethod(url, data);
         const newDataResp = response.data;
         const alertView = newDataResp["msg"];
         const statusApi = newDataResp["status"];

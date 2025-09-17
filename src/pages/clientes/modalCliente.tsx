@@ -168,6 +168,21 @@ export const ModalCreateClient: React.FC<iModalCreateClient> = ({
                 )}
               </div>
 
+              {/* Número */}
+              <div className="space-y-2">
+                <Label className="text-brown-700 font-medium">Número</Label>
+                <Input
+                  {...register("numero")}
+                  className="border-brand-200 focus:border-brand-400 focus:ring-brand-200"
+                  placeholder="Ex: 32"
+                />
+                {errors.cidade && (
+                  <p className="text-red-500 text-xs">
+                    {errors.numero?.message}
+                  </p>
+                )}
+              </div>
+
               {/* Telefone */}
               <div className="space-y-2">
                 <Label className="text-brown-700 font-medium">Telefone</Label>

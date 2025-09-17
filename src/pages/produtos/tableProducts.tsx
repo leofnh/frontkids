@@ -24,33 +24,33 @@ import {
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { useState, useEffect } from "react";
-import { ProductGroup } from "../../components/types";
+import { ImgProductType, ProductFormData } from "../../components/types";
 
-interface Product {
+interface ProductTable {
   marca: string;
   codigo: string;
   ref?: string;
   produto?: string;
   estoque?: string | number;
   preco?: string | number;
-  [key: string]: string | number | undefined; // Permite propriedades adicionais
+  [key: string]: string | number | undefined;
 }
 
 interface iCard {
   dataHeader: Array<string>;
-  imgProduct: Array<string>;
-  setImgProduct: Array<string>;
-  dataBody: Array<Product>;
+  imgProduct: ImgProductType[];
+  setImgProduct: React.Dispatch<React.SetStateAction<ImgProductType[]>>;
+  dataBody: ProductTable[];
   notifySuccess: (text: string) => void;
   notifyError: (text: string) => void;
-  handleUpdate: (data: {
-    valueCodigo: string;
-    formatedValue: number;
-    produto: string;
-  }) => void;
+  handleUpdate: (
+    valueCodigo: string,
+    formatedValue: number,
+    produto: string
+  ) => void;
   setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setDataUpdate: React.Dispatch<React.SetStateAction<ProductGroup | null>>;
+  setDataUpdate: React.Dispatch<React.SetStateAction<ProductFormData>>;
   isImgOpen: boolean;
   setImgOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -86,11 +86,7 @@ export const TableBaseProduct: React.FC<iCard> = ({
   const enviarCodigo = (codigo: string) => {
     const formatedValue = parseInt(inputValue);
     if (formatedValue >= 0) {
-      handleUpdate({
-        valueCodigo: codigo,
-        formatedValue,
-        produto: inputProduct,
-      });
+      handleUpdate(codigo, formatedValue, inputProduct);
       notifySuccess("Estoque atualizado com sucesso!");
       setEditIndex(null);
       setInputValue("");
@@ -297,26 +293,44 @@ export const TableBaseProduct: React.FC<iCard> = ({
                             onClick={() => {
                               setUpdate(true);
                               setIsOpen(true);
-                              setDataUpdate(item as unknown as ProductGroup);
+                              setDataUpdate({
+                                ref: item.ref || "",
+                                loja: true,
+                                marca: item.marca || "",
+                                codigo: item.codigo || "",
+                                tamanho: "", // ProductGroup doesn't have tamanho directly
+                                preco: item.preco?.toString() || "0",
+                                custo: "0", // ProductGroup doesn't have custo
+                                estoque:
+                                  typeof item.estoque === "number"
+                                    ? item.estoque
+                                    : parseInt(item.estoque?.toString() || "0"),
+                                produto: item.produto || "",
+                                cor: "", // ProductGroup doesn't have cor directly
+                                descricao:
+                                  typeof item.descricao === "string"
+                                    ? item.descricao
+                                    : item.descricao?.toString() || "",
+                                sequencia:
+                                  typeof item.sequencia === "number"
+                                    ? item.sequencia
+                                    : parseInt(
+                                        item.sequencia?.toString() || "0"
+                                      ),
+                                id:
+                                  typeof item.id === "number"
+                                    ? item.id
+                                    : undefined,
+                                update:
+                                  typeof item.update === "string"
+                                    ? item.update
+                                    : undefined,
+                              });
                             }}
                             title="Editar produto"
                           >
                             <RefreshCcw size={16} />
                           </Button>
-
-                          {/* <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-brown-600 hover:text-brown-700 hover:bg-brown-100 p-2 rounded-md"
-                            onClick={() => {
-                              setEditIndex(index);
-                              setInputValue(String(item.estoque || ""));
-                              setInputProduct(String(item.produto || ""));
-                            }}
-                            title="Atualizar estoque"
-                          >
-                            <RefreshCcw size={16} />
-                          </Button> */}
 
                           <Button
                             size="sm"
@@ -324,7 +338,39 @@ export const TableBaseProduct: React.FC<iCard> = ({
                             className="text-purple-600 hover:text-purple-700 hover:bg-purple-100 p-2 rounded-md"
                             onClick={() => {
                               setImgOpen(true);
-                              setDataUpdate(item as unknown as ProductGroup);
+                              setDataUpdate({
+                                ref: item.ref || "",
+                                loja: true,
+                                marca: item.marca || "",
+                                codigo: item.codigo || "",
+                                tamanho: "",
+                                preco: item.preco?.toString() || "0",
+                                custo: "0",
+                                estoque:
+                                  typeof item.estoque === "number"
+                                    ? item.estoque
+                                    : parseInt(item.estoque?.toString() || "0"),
+                                produto: item.produto || "",
+                                cor: "",
+                                descricao:
+                                  typeof item.descricao === "string"
+                                    ? item.descricao
+                                    : item.descricao?.toString() || "",
+                                sequencia:
+                                  typeof item.sequencia === "number"
+                                    ? item.sequencia
+                                    : parseInt(
+                                        item.sequencia?.toString() || "0"
+                                      ),
+                                id:
+                                  typeof item.id === "number"
+                                    ? item.id
+                                    : undefined,
+                                update:
+                                  typeof item.update === "string"
+                                    ? item.update
+                                    : undefined,
+                              });
                             }}
                             title="Adicionar imagem"
                           >

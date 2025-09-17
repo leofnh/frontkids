@@ -24,7 +24,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../../components/ui/carousel";
-import { ImgProductType, ProductType } from "../../components/types";
+import { ImgProductType, ProductFormData } from "../../components/types";
 import { toast } from "react-toastify";
 import { useData } from "../../components/context";
 
@@ -34,7 +34,7 @@ interface iModalimport {
   notifySuccess: (text: string) => void;
   notifyError: (text: string) => void;
   imgProduct: ImgProductType[];
-  dataUpdate: ProductType;
+  dataUpdate: ProductFormData;
 }
 
 export const ModalImage: React.FC<iModalimport> = ({

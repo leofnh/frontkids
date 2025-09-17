@@ -103,7 +103,10 @@ export type ProductFormData = {
   produto: string;
   cor: string;
   descricao: string;
-  //sequencia: string;
+  sequencia: number;
+  id?: number;
+  cadastro?: string;
+  update?: string;
 };
 
 export type DataCliente = {
@@ -118,7 +121,7 @@ export type DataCliente = {
   sapato: string;
   roupa: string;
   telefone: string;
-  id: string;
+  id: number;
 };
 
 export type ImgProductType = {

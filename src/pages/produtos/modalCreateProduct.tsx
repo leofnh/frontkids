@@ -25,20 +25,9 @@ interface iModalCreateProduct {
   titleModal: string;
   descriptionModal: string;
   handleSubmit: UseFormHandleSubmit<ProductFormData>;
-  handleFilterProduct: (data: {
-    marca: string;
-    codigo: string;
-    tamanho: string;
-    ref: string;
-    preco: string;
-    custo: string;
-    estoque: number;
-    produto: string;
-    loja: boolean;
-    cor: string;
-    descricao: string;
-  }) => void;
+  handleFilterProduct: (data: ProductFormData) => void;
   register: UseFormRegister<ProductFormData>;
+  loading: boolean;
 }
 
 export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
@@ -54,6 +43,7 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
   setValue,
   watch,
   formStateErrors,
+  loading,
 }) => {
   useEffect(() => {
     if (update) {
@@ -386,6 +376,7 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
 
               <Button
                 type="submit"
+                disabled={loading}
                 className="bg-brand-500 hover:bg-brand-600 text-white shadow-md transition-all min-w-[150px]"
               >
                 {!update ? "Cadastrar Produto" : "Atualizar Produto"}
