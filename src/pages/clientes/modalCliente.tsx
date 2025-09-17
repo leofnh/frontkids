@@ -230,7 +230,11 @@ export const ModalCreateClient: React.FC<iModalCreateClient> = ({
 
               {/* Campo hidden para ID */}
               <div className="hidden">
-                <Input {...register("id")} />
+                <Input
+                  {...register("id", { valueAsNumber: true })}
+                  type="number"
+                  defaultValue={0}
+                />
               </div>
             </div>
 
