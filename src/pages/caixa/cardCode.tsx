@@ -79,6 +79,7 @@ export const CardSearchCode: React.FC<iCard> = ({
         qtde: 1,
         preco: item.preco,
         codigo: item.codigo,
+        condicional: 0,
       };
       if (itensObjetoUpdate.length > 0) {
         notifyError(
@@ -129,6 +130,7 @@ export const CardSearchCode: React.FC<iCard> = ({
           qtde: 1,
           preco: item.preco,
           codigo: item.codigo,
+          condicional: it.condicional,
         };
 
         if (itensObjetoUpdate.length > 0) {

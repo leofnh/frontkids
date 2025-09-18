@@ -331,6 +331,7 @@ export function Produtos() {
                     <TableCondicionais
                       condicionais={condicionais}
                       produtos={produtoCondicional}
+                      setCondicional={() => setCondicional}
                       setProdutosCondicionais={() => setProdutoCondicional}
                     />
                   </div>

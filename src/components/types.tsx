@@ -138,6 +138,7 @@ export type CondicionalType = {
   cadastro: string;
   update: string;
   nome: string;
+  contato: string;
 };
 
 export type ProdutoCondicional = {

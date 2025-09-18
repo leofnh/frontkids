@@ -1,7 +1,8 @@
+import React, { useRef } from "react";
 import { Modal } from "../../components/modalBase";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
-import { ProdutoCondicional } from "../../components/types";
+import { CondicionalType, ProdutoCondicional } from "../../components/types";
 import {
   Table,
   TableBody,
@@ -25,7 +26,11 @@ import {
   PackageSearch,
   ShoppingCart,
   Sparkles,
+  Trash2,
+  PrinterIcon,
 } from "lucide-react";
+import { useReactToPrint } from "react-to-print";
+import { useData } from "../../components/context";
 
 interface iAddProdutoCondicional {
   isOpen: boolean;
@@ -33,8 +38,19 @@ interface iAddProdutoCondicional {
   titleModal: string;
   descriptionModal: string;
   produtos: ProdutoCondicional[];
-  idCondicional: number | null;
+  idCondicional: CondicionalType | null;
   setProdutosCondicionais: (data: ProdutoCondicional[]) => void;
+}
+
+interface UserDashboard {
+  id: number;
+  username: string;
+}
+
+interface TypeDashboard {
+  total_venda: number;
+  vendas_hoje: number;
+  users: UserDashboard[];
 }
 
 export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
@@ -44,12 +60,21 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
   descriptionModal,
   idCondicional,
 }) => {
+  const { dashboard } = useData() as {
+    dashboard: TypeDashboard;
+  };
   const [codigo, setCodigo] = useState("");
   const [produtosCond, setProdutoCond] = useState<ProdutoCondicional[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingTable, setIsLoadingTable] = useState(true);
   const [inputFocused, setInputFocused] = useState(false);
   const [successAnimation, setSuccessAnimation] = useState(false);
+  const [showVendedorModal, setShowVendedorModal] = useState(false);
+  const [selectedVendedor, setSelectedVendedor] = useState("");
+
+  const today = new Date().toLocaleDateString();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
   const sendProdutoCond = async () => {
     if (!codigo.trim()) {
@@ -84,6 +109,48 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
       toast.error("Erro ao adicionar produto. Tente novamente.");
     } finally {
       setIsLoading(false);
+    }
+  };
+  const totalPreco = produtosCond.reduce((acc, item) => acc + item.preco, 0);
+  const delProdutoCond = async (id: number) => {
+    setIsLoading(true);
+    try {
+      const response = await api.delete(`api/adm/condicional/?id_cond=${id}`);
+      const status = response.data.status;
+      const msg = response.data.msg;
+      if (status == "sucesso") {
+        const novosProdutos = produtosCond.filter((item) => item.id !== id);
+        setProdutoCond(novosProdutos);
+        toast.success(msg);
+      } else {
+        toast.error(msg);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao remover produto. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const vendedorName =
+    selectedVendedor || localStorage.getItem("userName") || "";
+
+  const handlePrint = () => {
+    // Pré-preenche com o vendedor do localStorage se existir
+    const defaultVendedor = localStorage.getItem("userName");
+    if (defaultVendedor && !selectedVendedor) {
+      setSelectedVendedor(defaultVendedor);
+    }
+    setShowVendedorModal(true);
+  };
+
+  const confirmarImpressao = () => {
+    if (selectedVendedor.trim()) {
+      setShowVendedorModal(false);
+      reactToPrintFn();
+    } else {
+      toast.error("Por favor, selecione ou digite um vendedor");
     }
   };
 
@@ -130,7 +197,10 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
                   <h2 className="text-lg md:text-xl lg:text-2xl font-bold truncate">
                     {titleModal}
                   </h2>
-                  <p className="text-white/90 text-sm md:text-base lg:text-lg line-clamp-2">
+                  <p
+                    className="text-white/90 text-sm md:text-base lg:text-lg
+                   line-clamp-2 text-left"
+                  >
                     {descriptionModal}
                   </p>
                 </div>
@@ -155,8 +225,9 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-3 w-3 md:h-4 md:w-4" />
                 <span>
-                  {produtosCond?.filter((p) => p.condicional === idCondicional)
-                    .length || 0}{" "}
+                  {produtosCond?.filter(
+                    (p) => p.condicional === idCondicional?.id
+                  ).length || 0}{" "}
                   itens
                 </span>
               </div>
@@ -261,7 +332,7 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
                 <Package className="h-3 w-3 md:h-4 md:w-4 text-brand-600" />
                 <span className="font-semibold text-brand-700 text-sm md:text-base">
                   {produtosCond?.filter(
-                    (fil) => fil.condicional === idCondicional
+                    (fil) => fil.condicional === idCondicional?.id
                   ).length || 0}{" "}
                   <span className="hidden sm:inline">produtos</span>
                   <span className="sm:hidden">itens</span>
@@ -279,14 +350,15 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
                   </p>
                 </div>
               </div>
-            ) : produtosCond?.filter((fil) => fil.condicional === idCondicional)
-                .length > 0 ? (
+            ) : produtosCond?.filter(
+                (fil) => fil.condicional === idCondicional?.id
+              ).length > 0 ? (
               /* Modern Table - Responsive */
               <div className="bg-white rounded-xl md:rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                 {/* Mobile Card Layout */}
                 <div className="block md:hidden">
                   {produtosCond
-                    ?.filter((fi) => fi.condicional === idCondicional)
+                    ?.filter((fi) => fi.condicional === idCondicional?.id)
                     .map((item, index) => (
                       <div
                         key={index}
@@ -354,11 +426,14 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
                             PREÇO
                           </div>
                         </TableHead>
+                        <TableHead className="text-center font-bold text-gray-700 py-3 md:py-4 px-4 md:px-6">
+                          AÇÕES
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {produtosCond
-                        ?.filter((fi) => fi.condicional === idCondicional)
+                        ?.filter((fi) => fi.condicional === idCondicional?.id)
                         .map((item, index) => (
                           <TableRow
                             key={index}
@@ -394,6 +469,25 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
                                     ? item.preco.toFixed(2)
                                     : item.preco}
                                 </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3 md:py-4 px-4 md:px-6 text-center">
+                              <div className="flex gap-2 justify-center">
+                                <button
+                                  onClick={() => delProdutoCond(item.id)}
+                                  className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-105 border border-red-200 hover:border-red-300"
+                                  title="Excluir item"
+                                >
+                                  <Trash2 size={16} strokeWidth={2.5} />
+                                </button>
+
+                                <button
+                                  className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-105 border border-blue-200 hover:border-blue-300"
+                                  title="Excluir item"
+                                  onClick={handlePrint}
+                                >
+                                  <PrinterIcon size={16} strokeWidth={2.5} />
+                                </button>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -434,6 +528,186 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
           </div>
         </div>
       </div>
+
+      <div className="hidden">
+        <Button>Imprimir!</Button>
+        <div
+          ref={contentRef}
+          className="w-[58mm] p-2 text-black bg-white text-[10px]"
+          style={{
+            fontFamily: "monospace",
+            margin: "auto",
+            width: "70mm",
+          }}
+        >
+          <div className="text-left space-y-1">
+            <h2 className="font-bold bg-gray-100 text-[10px]">Paula Kids</h2>
+            <div className="space-x-2 flex">
+              <div className="w-[64px]">
+                <img
+                  src="https://i.imgur.com/1gjHoAF.png"
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="text-[10px]">
+                <p>Rua Getulio Vargas 48 - Centro</p>
+                <p>35995-000 S.Domingos Prata - MG</p>
+                <p>30.393.198/0001-81</p>
+                <p>(31)99734-6732</p>
+              </div>
+            </div>
+
+            <div className="my-2 text-[10px]">
+              <p className="font-bold bg-gray-300 text-[10px]">
+                DOCUMENTO AUXILIAR DE VENDA
+              </p>
+              <p className="font-bold bg-gray-300 text-[10px]">
+                NÃO POSSUI VALIDADE FISCAL
+              </p>
+              <p className="flex jsutify-between mt-2">
+                <span>Emissão:</span>
+                <span className="ml-auto">{today}</span>
+              </p>
+              <p className="flex">
+                <span className="flex">Vendedor(a): </span>
+                <span className="ml-auto">{vendedorName}</span>
+              </p>
+            </div>
+
+            <hr className="my-2 border-dashed border-t-2" />
+
+            <p className="font-bold bg-gray-300 text-[10px]">
+              Dados do Cliente
+            </p>
+            <div className="flex text-[10px]">
+              <span>Cliente:</span>
+              <span className="ml-auto">{idCondicional?.nome}</span>
+            </div>
+
+            <div className="flex text-[10px]">
+              <span>Contato</span>
+              <span className="ml-auto">{idCondicional?.contato}</span>
+            </div>
+
+            <hr className="my-2 border-dashed border-t-2" />
+
+            <p className="font-bold bg-gray-300 text-[10px]">
+              Relação dos Produtos
+            </p>
+            <p className="flex text-[10px]">
+              <span className="flex-1 min-w-0">Produto</span>
+              <span className="w-16 text-center flex-shrink-0">Ref.</span>
+              <span className="w-20 text-right flex-shrink-0">Valor</span>
+            </p>
+            <div>
+              {produtosCond?.map((item, index) => (
+                <p key={index} className="flex text-xs">
+                  <span className="truncate flex-1 max-w-[120px]">
+                    {item.produto}
+                  </span>
+                  <span className="w-16 text-center flex-shrink-0">
+                    {item.ref}
+                  </span>
+                  <span className="w-20 text-right flex-shrink-0">
+                    R$ {item.preco}
+                  </span>
+                </p>
+              ))}
+            </div>
+
+            <div className="flex justify-between font-bold text-[10px]">
+              <span>Total da condicional</span>
+              <span>
+                {totalPreco.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
+            </div>
+
+            <hr className="my-2 border-dashed border-t-2" />
+
+            <div className="mt-4 text-center">
+              <p className="mt-5">Assinatura: X_________________________</p>
+              <p>{idCondicional?.nome}</p>
+            </div>
+
+            <hr className="my-2 border-dashed border-t-2" />
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de Seleção de Vendedor */}
+      {showVendedorModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-200">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <PrinterIcon className="h-6 w-6 text-brand-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Selecionar Vendedor
+              </h3>
+              <p className="text-gray-600">
+                Informe o vendedor responsável pela venda
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Nome do Vendedor
+                </Label>
+                {/* <Input
+                  placeholder="Digite o nome do vendedor"
+                  value={selectedVendedor}
+                  onChange={(e) => setSelectedVendedor(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  autoFocus
+                /> */}
+
+                <select
+                  className="w-full h-9 bg-white border border-brand-200 rounded-md shadow-sm 
+                  focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 
+                  text-brown-800 text-sm pl-3 pr-8"
+                  onChange={(e) => {
+                    setSelectedVendedor(e.target.value);
+                  }}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Selecione o vendedor
+                  </option>
+                  {dashboard &&
+                    dashboard.users.map((vendedor: UserDashboard) => (
+                      <option key={vendedor.id} value={vendedor.username}>
+                        {vendedor.username}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => setShowVendedorModal(false)}
+                  variant="outline"
+                  className="flex-1 px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={confirmarImpressao}
+                  className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white"
+                  disabled={!selectedVendedor.trim()}
+                >
+                  <PrinterIcon className="h-4 w-4 mr-2" />
+                  Imprimir
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Modal>
   );
 };

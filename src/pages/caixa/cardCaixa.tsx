@@ -176,20 +176,8 @@ export const CardCaixaFinish: React.FC<iCard> = ({
   const sendVenda = async (data: PayloadVenda) => {
     setLoading(true);
     try {
-      const response = await toast.promise(api.post("api/venda/", data), {
-        pending: {
-          render: "Registrando venda...",
-          autoClose: 100,
-        },
-        success: {
-          render: "Dados enviado com sucesso!",
-          autoClose: 100,
-        },
-        error: {
-          render: "Erro ao enviar os dados...",
-          autoClose: 1000,
-        },
-      });
+      const response = await api.post("api/venda/", data);
+
       const dataResp = response.data;
       const status = dataResp["status"];
       const alert = dataResp["msg"];

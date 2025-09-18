@@ -10,28 +10,41 @@ import {
 } from "../../components/ui/table";
 import { Button } from "../../components/ui/button";
 import { CondicionalType, ProdutoCondicional } from "../../components/types";
-import { Plus } from "lucide-react";
+import { Plus, SquareCheck } from "lucide-react";
 import { AddProdutoCondicional } from "./addproduto";
+import { api } from "../../services/api";
 
 interface iCard {
   condicionais: CondicionalType[];
   produtos: ProdutoCondicional[];
   setProdutosCondicionais: (data: ProdutoCondicional[]) => void;
+  setCondicional: (data: CondicionalType[]) => void;
 }
 
 export const TableCondicionais: React.FC<iCard> = ({
   condicionais,
   produtos,
   setProdutosCondicionais,
+  setCondicional,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [addProduto, setAddProduto] = useState(false);
-  const [idCondicional, setIdCondicional] = useState<number | null>();
-  // const [isCondicional, setProdutosCondicionais] = useState<
-  //   ProdutoCondicional[]
-  // >([]);
-
+  const [idCondicional, setIdCondicional] = useState<CondicionalType | null>(
+    null
+  );
+  const fecharCondicional = async (id: number) => {
+    try {
+      const response = await api.put(`api/adm/condicional/?id_cond=${id}`);
+      const status = response.data.status;
+      if (status === "sucesso") {
+        const dados = response.data.dados;
+        setCondicional(dados);
+      }
+    } catch (error) {
+      console.error("Erro ao fechar condicional:", error);
+    }
+  };
   const filteredData = condicionais.filter((item) => {
     const searchNome = item.nome
       ?.toLowerCase()
@@ -44,12 +57,7 @@ export const TableCondicionais: React.FC<iCard> = ({
   });
   const itemsPerPage = 15;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  // const handleProduto = (condicional: number) => {
-  //   const filterProduto = produtos?.filter(
-  //     (it) => it.condicional == condicional
-  //   );
-  //   setProdutosCondicionais(filterProduto);
-  // };
+
   return (
     <div className="space-y-6">
       {/* Header com pesquisa */}
@@ -116,18 +124,28 @@ export const TableCondicionais: React.FC<iCard> = ({
                     })}
                   </TableCell>
                   <TableCell className="py-3">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-brand-600 hover:text-brand-700 hover:bg-brand-100 p-2 rounded-md"
-                      title="Adicionar produtos"
-                      onClick={() => {
-                        setAddProduto(!addProduto);
-                        setIdCondicional(it.id);
-                      }}
-                    >
-                      <Plus size={16} />
-                    </Button>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-105 border border-blue-200 hover:border-blue-300"
+                        title="Adicionars produtos"
+                        onClick={() => {
+                          setAddProduto(!addProduto);
+                          setIdCondicional(it);
+                        }}
+                      >
+                        <Plus size={16} strokeWidth={2.5} />
+                      </button>
+
+                      <button
+                        className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-105 border border-red-200 hover:border-red-300"
+                        title="Finalizar condicional"
+                        onClick={() => {
+                          fecharCondicional(it.id);
+                        }}
+                      >
+                        <SquareCheck size={16} strokeWidth={2.5} />
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
