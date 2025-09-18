@@ -102,6 +102,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
       dataClient: Array<{
         id: number;
         nome: string;
+        cpf: string;
         rua: string;
         bairro: string;
         numero: string;
@@ -156,7 +157,6 @@ export const CardCaixaFinish: React.FC<iCard> = ({
       for (let i = 0; i < Number(parcelas); i++) {
         const newDataVencimento = new Date(dataVencimento);
         newDataVencimento.setMonth(newDataVencimento.getMonth() + i);
-        //newDataVencimento.setDate(newDataVencimento.getDate() + 1);
 
         const dataFormated = newDataVencimento.toLocaleDateString("pt-BR");
         parcelasComVencimento.push({
@@ -426,33 +426,48 @@ export const CardCaixaFinish: React.FC<iCard> = ({
   };
 
   const handleSearchClient = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const cpf = event.target.value;
-    const searchClient = dataClient.some(
-      (client: { nome: string }) => client.nome == cpf
-    );
-    if (cpf) {
-      if (searchClient) {
-        const client = dataClient.find(
-          (client: { nome: string }) => client.nome === cpf
+    const normalize = (text: string) => text.trim().toLowerCase();
+    const searchValue = event.target.value;
+
+    if (searchValue) {
+      // Busca por nome (exato ou parcial) ou CPF (exato)
+      const foundClient = dataClient.find((client) => {
+        const normalizedSearchValue = normalize(searchValue);
+        const normalizedNome = normalize(client.nome);
+        const normalizedCpf = normalize(client.cpf);
+
+        // Busca exata por CPF ou busca por nome (pode ser parcial)
+        return (
+          normalizedCpf === normalizedSearchValue ||
+          normalizedNome.includes(normalizedSearchValue) ||
+          normalizedNome === normalizedSearchValue
         );
-        if (client) {
-          setClientCountry(
-            client.rua +
-              ", " +
-              client.bairro +
-              ", " +
-              client.numero +
-              ", " +
-              client.cidade
-          );
-          setClientName(client.nome);
-        }
+      });
+
+      if (foundClient) {
+        // Cliente encontrado
+        setClientCountry(
+          foundClient.rua +
+            ", " +
+            foundClient.bairro +
+            ", " +
+            foundClient.numero +
+            ", " +
+            foundClient.cidade
+        );
+        setClientName(foundClient.nome);
         setSearchClient(false);
       } else {
+        // Cliente não encontrado
         setSearchClient(true);
+        setClientName("");
+        setClientCountry("");
       }
     } else {
+      // Campo vazio
       setSearchClient(null);
+      setClientName("");
+      setClientCountry("");
     }
   };
 
@@ -581,7 +596,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                       </Label>
                       <Input
                         className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9 text-sm"
-                        placeholder="Digite o CPF do cliente"
+                        placeholder="Digite o CPF ou o nome do cliente"
                         onChange={handleSearchClient}
                       />
                     </div>
