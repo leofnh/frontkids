@@ -33,9 +33,23 @@ export const TableCondicionais: React.FC<iCard> = ({
   const [idCondicional, setIdCondicional] = useState<CondicionalType | null>(
     null
   );
-  const fecharCondicional = async (id: number) => {
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [condicionalToClose, setCondicionalToClose] =
+    useState<CondicionalType | null>(null);
+  const [isClosingCondicional, setIsClosingCondicional] = useState(false);
+  const handleFecharCondicional = (condicional: CondicionalType) => {
+    setCondicionalToClose(condicional);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmarFecharCondicional = async () => {
+    if (condicionalToClose === null) return;
+
+    setIsClosingCondicional(true);
     try {
-      const response = await api.put(`api/adm/condicional/?id_cond=${id}`);
+      const response = await api.put(
+        `api/adm/condicional/?id_cond=${condicionalToClose.id}`
+      );
       const status = response.data.status;
       if (status === "sucesso") {
         const dados = response.data.dados;
@@ -43,8 +57,18 @@ export const TableCondicionais: React.FC<iCard> = ({
       }
     } catch (error) {
       console.error("Erro ao fechar condicional:", error);
+    } finally {
+      setIsClosingCondicional(false);
+      setShowConfirmDialog(false);
+      setCondicionalToClose(null);
     }
   };
+
+  const cancelarFecharCondicional = () => {
+    setShowConfirmDialog(false);
+    setCondicionalToClose(null);
+  };
+
   const filteredData = condicionais.filter((item) => {
     const searchNome = item.nome
       ?.toLowerCase()
@@ -127,7 +151,7 @@ export const TableCondicionais: React.FC<iCard> = ({
                     <div className="flex gap-2 justify-center">
                       <button
                         className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 hover:scale-105 border border-blue-200 hover:border-blue-300"
-                        title="Adicionars produtos"
+                        title="Adicionar produtos"
                         onClick={() => {
                           setAddProduto(!addProduto);
                           setIdCondicional(it);
@@ -140,7 +164,7 @@ export const TableCondicionais: React.FC<iCard> = ({
                         className="p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 transition-all duration-200 hover:scale-105 border border-red-200 hover:border-red-300"
                         title="Finalizar condicional"
                         onClick={() => {
-                          fecharCondicional(it.id);
+                          handleFecharCondicional(it);
                         }}
                       >
                         <SquareCheck size={16} strokeWidth={2.5} />
@@ -192,6 +216,63 @@ export const TableCondicionais: React.FC<iCard> = ({
           idCondicional={idCondicional ?? null}
           setProdutosCondicionais={() => setProdutosCondicionais}
         />
+      )}
+
+      {/* Modal de Confirmação */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 border border-gray-200">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <SquareCheck className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Finalizar Condicional
+              </h3>
+              <p className="text-gray-600 mb-3">
+                Tem certeza que deseja finalizar a condicional do cliente:
+              </p>
+              <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                <p className="font-semibold text-gray-900">
+                  {condicionalToClose?.nome}
+                </p>
+                <p className="text-sm text-gray-600">
+                  CPF: {condicionalToClose?.cliente}
+                </p>
+              </div>
+              <p className="text-red-600 text-sm font-medium">
+                Esta ação não pode ser desfeita.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={cancelarFecharCondicional}
+                variant="outline"
+                className="flex-1 px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmarFecharCondicional}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white"
+                disabled={isClosingCondicional}
+              >
+                {isClosingCondicional ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Finalizando...
+                  </>
+                ) : (
+                  <>
+                    <SquareCheck className="h-4 w-4 mr-2" />
+                    Finalizar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

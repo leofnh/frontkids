@@ -86,7 +86,7 @@ export const AddProdutoCondicional: React.FC<iAddProdutoCondicional> = ({
     try {
       const data = new FormData();
       data.append("codigo", codigo);
-      data.append("condicional", String(idCondicional));
+      data.append("condicional", String(idCondicional?.id));
 
       const response = await api.post("api/add/produto-condicional/", data);
       const status = response.data.status;
