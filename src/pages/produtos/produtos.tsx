@@ -43,7 +43,7 @@ const infoSendSchema = z.object({
   produto: z.string().min(1, "Nome do produto é obrigatório"),
   cor: z.string(),
   descricao: z.string(),
-  sequencia: z.number(),
+  // sequencia: z.number(),
   id: z.number().optional(),
   cadastro: z.string().optional(),
   update: z.string().optional(),
@@ -90,7 +90,7 @@ export function Produtos() {
     produto: "",
     cor: "",
     descricao: "",
-    sequencia: 0,
+    //  sequencia: 0,
   });
 
   const [isImgOpen, setImgOpen] = useState(false);
@@ -276,7 +276,7 @@ export function Produtos() {
                           produto: "",
                           cor: "",
                           descricao: "",
-                          sequencia: 0,
+                          //   sequencia: 0,
                         });
                       }}
                     >

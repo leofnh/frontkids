@@ -100,6 +100,7 @@ export const ModalCreateProduct: React.FC<iModalCreateProduct> = ({
     value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return value;
   };
+
   return (
     <Modal
       isOpen={isOpen}

@@ -103,7 +103,7 @@ export type ProductFormData = {
   produto: string;
   cor: string;
   descricao: string;
-  sequencia: number;
+  //sequencia: number;
   id?: number;
   cadastro?: string;
   update?: string;
