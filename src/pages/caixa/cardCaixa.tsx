@@ -123,6 +123,9 @@ export const CardCaixaFinish: React.FC<iCard> = ({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [vendedorName, setVendedorName] = useState<string>("");
   const [nameClientCupom, setNameClientCupom] = useState("");
+  const [dadosVendaPreservados, setDadosVendaPreservados] = useState<
+    TypeProduct[]
+  >([]);
 
   const handleVendedorName = (e: string) => {
     const username = dashboard.users.find(
@@ -340,6 +343,9 @@ export const CardCaixaFinish: React.FC<iCard> = ({
     } else if (dataUpdate == null) {
       return notifyError("O carrinho esta vazio!");
     } else {
+      // Preserva os dados para a segunda via antes de processar a venda
+      setDadosVendaPreservados([...dataUpdate]);
+
       const payload: PayloadVenda = {
         ...formData,
         forma: selectedOption,
@@ -795,19 +801,36 @@ export const CardCaixaFinish: React.FC<iCard> = ({
             <p className="font-bold bg-gray-300 text-[10px]">
               Relação dos Produtos
             </p>
-            <p className="flex justify-between text-[10px]">
-              <span>Produto</span>
-              <span>Ref.</span>
-              <span>valor</span>
-            </p>
-            <div>
-              {dataUpdate.map((item, index) => (
-                <p key={index} className="flex justify-between text-xs">
-                  <span className="truncate max-w-[33%]">{item.produto}</span>
-                  <span className="ml-auto">{item.ref}</span>
-                  <span className="ml-auto">R$ {item.preco}</span>
-                </p>
-              ))}
+
+            {/* Cabeçalho da tabela */}
+            <div className="grid grid-cols-4 gap-1 text-[10px] font-semibold border-b border-dashed pb-1">
+              <span className="text-left">Produto</span>
+              <span className="text-center">Ref.</span>
+              <span className="text-center">Qtde</span>
+              <span className="text-right">Valor</span>
+            </div>
+
+            {/* Linhas da tabela */}
+            <div className="space-y-1">
+              {(dataUpdate.length > 0 ? dataUpdate : dadosVendaPreservados).map(
+                (item, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-4 gap-1 text-[10px] py-0.5"
+                  >
+                    <span className="text-left truncate" title={item.produto}>
+                      {item.produto}
+                    </span>
+                    <span className="text-center truncate" title={item.ref}>
+                      {item.ref}
+                    </span>
+                    <span className="text-center">{item.qtde}</span>
+                    <span className="text-right whitespace-nowrap">
+                      R${item.preco}
+                    </span>
+                  </div>
+                )
+              )}
             </div>
 
             <div className="flex justify-between font-bold text-[10px]">
