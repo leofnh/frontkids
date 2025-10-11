@@ -96,7 +96,7 @@ export function SobreNos() {
           </Button>
         </div>
       </div>
-      <div className="container flex flex-col">
+      <div className="flex flex-col">
         {isEdit ? (
           <>
             <h2>Edite o "Sobre Nós"</h2>

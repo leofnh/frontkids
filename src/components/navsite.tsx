@@ -247,7 +247,7 @@ export const NavSite: React.FC<Props> = ({ searchTerm, style }) => {
         className="sticky top-0 z-30 w-full bg-white/95 shadow-sm backdrop-blur-md border-b border-gray-100"
         style={style}
       >
-        <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
+        <div className="mx-auto flex h-20 items-center justify-between px-4 md:px-6">
           <Link to="/loja/" className="flex items-center gap-3">
             <img
               src={logoLoja}
@@ -454,7 +454,7 @@ export const NavSite: React.FC<Props> = ({ searchTerm, style }) => {
 
         {/* Mobile Search */}
         {searchTerm && (
-          <div className="container mx-auto px-4 md:px-6 py-4 md:hidden">
+          <div className="mx-auto px-4 md:px-6 py-4 md:hidden">
             <div className="relative">
               <Input
                 className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors"
@@ -475,7 +475,7 @@ export const FooterSite: React.FC<PropsFooter> = ({ style }) => {
 
   return (
     <footer className="bg-gray-900 text-gray-300" style={style}>
-      <div className="container mx-auto px-4 md:px-6 py-12">
+      <div className="mx-auto px-4 md:px-6 py-12">
         {/* Trust Badges */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div className="flex flex-col items-center text-center p-6 bg-gray-800 rounded-xl">
@@ -605,7 +605,7 @@ export const FooterSite: React.FC<PropsFooter> = ({ style }) => {
 
       {/* Copyright */}
       <div className="bg-gray-800 border-t border-gray-700 py-6">
-        <div className="container mx-auto text-center text-sm">
+        <div className="mx-auto text-center text-sm">
           <p className="text-gray-400">
             Paula Calçados e Store &copy; {getYear} Todos Direitos Reservados
           </p>

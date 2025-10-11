@@ -271,7 +271,7 @@ export function SiteConfig() {
       <Nav />
       <ToastContainer />
 
-      <div className="container mx-auto p-6">
+      <div className="mx-auto p-6">
         {/* Header com gradiente e cards de estatísticas */}
         <div className="relative mb-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-brand-500 to-brown-500 rounded-xl opacity-10" />

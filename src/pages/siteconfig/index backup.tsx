@@ -336,7 +336,7 @@ export function SiteConfig() {
             )}
           </div>
         </div>
-        <div className="container mx-auto py-8 flex flex-col gap-4">
+        <div className="mx-auto py-8 flex flex-col gap-4">
           {/* Lista de Produtos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {productsToDisplay?.length ? (

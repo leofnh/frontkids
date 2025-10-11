@@ -4,28 +4,8 @@
 
 @layer base {
   :root {
-    /* Variáveis CSS para as cores da marca */
-    --brand-50: 254 247 237;
-    --brand-100: 253 237 211;
-    --brand-200: 251 217 166;
-    --brand-300: 248 192 120;
-    --brand-400: 245 164 73;
-    --brand-500: 237 140 59;
-    --brand-600: 217 119 6;
-    --brand-700: 180 83 9;
-    --brand-800: 146 64 14;
-    --brand-900: 120 53 15;
-
-    --brown-50: 250 248 243;
-    --brown-100: 240 234 222;
-    --brown-200: 224 209 184;
-    --brown-300: 206 182 135;
-    --brown-400: 184 152 85;
-    --brown-500: 105 80 24;
-    --brown-600: 92 70 21;
-    --brown-700: 77 58 18;
-    --brown-800: 62 46 14;
-    --brown-900: 45 33 10;
+    --brand: 237 140 59;
+    --brown: 62 46 14;
   }
 
   * {
@@ -33,45 +13,23 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(
-      135deg,
-      rgb(var(--brown-50)) 0%,
-      rgb(var(--brand-50)) 100%
-    );
+    font-family: system-ui, sans-serif;
+    background-color: #faf8f3;
     min-height: 100vh;
-    color: rgb(var(--brown-800));
+    color: rgb(var(--brown));
   }
 }
 
 @layer components {
-  /* Estilos personalizados para componentes */
-  .container {
-    @apply max-w-7xl mx-auto;
-  }
-
-  /* Scrollbar customizada */
   ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-neutral-100;
+    width: 4px;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-brand-300 rounded-lg;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-brand-400;
+    background: #e0d1b8;
   }
 }

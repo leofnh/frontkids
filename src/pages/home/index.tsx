@@ -45,11 +45,13 @@ export function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const notifySuccess = (text: string) =>
     toast.success(text, {
-      theme: "colored",
+      theme: "light",
+      autoClose: 500,
     });
   const notifyError = (text: string) =>
     toast.error(text, {
-      theme: "colored",
+      theme: "light",
+      autoClose: 500,
     });
 
   const [dataPca, setDataPca] = useState([]);

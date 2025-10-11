@@ -246,7 +246,7 @@ export const CardDash: React.FC<iCard> = ({
                         >
                           <TableCell className="py-3 text-brown-800 min-w-[150px]">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                              <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                                 {item.cliente?.charAt(0)?.toUpperCase() || "?"}
                               </div>
                               <span className="font-medium truncate">

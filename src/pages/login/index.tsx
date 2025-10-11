@@ -86,10 +86,10 @@ export function Login() {
       const status = response.data.status;
       const msg = response.data.msg;
       if (status === "sucesso") {
-        toast(msg, { type: "success", autoClose: 2000 });
+        toast(msg, { type: "success", autoClose: 500 });
         setIsForm(1);
       } else {
-        toast(msg, { type: "error" });
+        toast(msg, { type: "error", autoClose: 500 });
       }
     } catch (error) {
       console.error(error);

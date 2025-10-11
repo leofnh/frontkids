@@ -134,7 +134,7 @@ export function Clientes() {
           toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
         />
 
-        <main className="container mx-auto px-4 py-8">
+        <main className="mx-auto px-4 py-8">
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>

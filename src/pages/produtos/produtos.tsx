@@ -242,7 +242,7 @@ export function Produtos() {
           toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
         />
 
-        <main className="container mx-auto px-4 py-8">
+        <main className="mx-auto px-4 py-8">
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
@@ -284,7 +284,7 @@ export function Produtos() {
                     </Button>
 
                     <Button
-                      className="bg-brown-600 hover:bg-brown-700 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
+                      className="bg-brown-500 hover:bg-brand-500 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
                       onClick={openModalImport}
                     >
                       📥 Importar
@@ -294,7 +294,7 @@ export function Produtos() {
 
                 {isPage === 2 && (
                   <Button
-                    className="bg-brown-600 hover:bg-brown-700 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
+                    className="bg-brown-500 hover:bg-brown-500 text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95 gap-2 px-4 py-2"
                     onClick={() => {
                       setModalCond(!isModalCond);
                     }}

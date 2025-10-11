@@ -16,7 +16,7 @@ export function Nav() {
   };
   return (
     <header className="sticky top-0 z-50 w-full border-b border-brand-200 bg-gradient-to-r from-brown-500 to-brown-600 backdrop-blur supports-[backdrop-filter]:bg-brown-500/95 shadow-lg">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <Link
             to="/caixa"
@@ -29,7 +29,7 @@ export function Nav() {
             />
           </Link>
           <div className="hidden md:flex flex-col">
-            <span className="text-sm text-brand-100 font-medium">
+            <span className="text-sm text-brand-500 font-medium">
               Olá, {userData[0].username}!
             </span>
             <h1 className="text-lg font-bold text-brand-50 tracking-tight">

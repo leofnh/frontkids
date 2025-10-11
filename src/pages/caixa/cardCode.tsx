@@ -57,10 +57,10 @@ export const CardSearchCode: React.FC<iCard> = ({
   const handleDataBody = () => {
     //const pk = parseInt(code);
     const itensObjeto = dataProduct.filter(
-      (item_obj) => item_obj.codigo === code
+      (item_obj) => item_obj.codigo == code
     );
     const itensObjetoUpdate = dataUpdate.filter(
-      (item_obj) => item_obj.codigo === code
+      (item_obj) => item_obj.codigo == code
     );
 
     if (itensObjeto.length > 0) {

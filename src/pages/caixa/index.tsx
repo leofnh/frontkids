@@ -8,17 +8,17 @@ import { useData } from "../../components/context";
 import { ProductGroup, TypeCarrinho } from "../../components/types";
 
 export function Caixa() {
-  //const [dataBody, setDataBody] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
   const [forma, setForma] = useState("");
   const [troco, setTroco] = useState(0);
-  const { dataProduct } = useData() as {
-    dataProduct: ProductGroup[];
-    // setProduct: (data: ProductGroup[]) => void;
-  };
   const [total, setTotal] = useState<number>(0);
   const [dataUpdate, setDataUpdate] = useState<TypeCarrinho[]>([]);
 
+  const { dataProduct } = useData() as {
+    dataProduct: ProductGroup[];
+  };
+
+  // Notificações otimizadas
   const notifySuccess = (text: string) =>
     toast.success(text, {
       theme: "light",
@@ -33,25 +33,25 @@ export function Caixa() {
     });
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brown-50">
+      <div className="min-h-screen bg-brown-50">
         <Nav />
-        <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <ToastContainer
             position="top-right"
             autoClose={500}
-            toastClassName="!bg-white !text-brown-800 border border-brand-200 shadow-lg"
+            toastClassName="!bg-white !text-brown-800 border"
           />
 
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-brown-800 mb-2">
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-brown-800 mb-1">
               Ponto de Venda (PDV)
             </h1>
-            <p className="text-brown-600">
+            <p className="text-brown-600 text-sm">
               Gerencie vendas e processe pagamentos
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
               <CardSearchCode
                 title="Produtos"

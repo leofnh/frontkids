@@ -600,9 +600,21 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                       <Label className="text-brown-700 font-medium text-sm">
                         Cliente:
                       </Label>
-                      <Input
+                      {/* <Input
                         className="border-brand-200 focus:border-brand-400 focus:ring-brand-200 h-9 text-sm"
                         placeholder="Digite o CPF ou o nome do cliente"
+                        onChange={handleSearchClient}
+                      /> */}
+                      <datalist id="listClient">
+                        {dataClient.map((client) => (
+                          <option key={client.id} value={client.nome}>
+                            {client.rua}, {client.bairro}, {client.numero}
+                          </option>
+                        ))}
+                      </datalist>
+                      <Input
+                        placeholder="Nome do cliente..."
+                        list="listClient"
                         onChange={handleSearchClient}
                       />
                     </div>

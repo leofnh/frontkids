@@ -89,7 +89,7 @@ export function DetalhesProduto() {
         <NavSite />
 
         {/* Breadcrumb */}
-        <div className="container mx-auto px-4 py-4">
+        <div className="mx-auto px-4 py-4">
           <nav className="flex items-center space-x-2 text-sm text-gray-600">
             <span className="hover:text-blue-600 cursor-pointer">Início</span>
             <ChevronRight className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function DetalhesProduto() {
           </nav>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
