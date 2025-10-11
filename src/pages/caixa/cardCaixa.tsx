@@ -748,7 +748,8 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               <div className="w-[64px]">
                 <img
                   src="https://i.imgur.com/1gjHoAF.png"
-                  className="w-full h-auto"
+                  className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
+                  alt="Paula Kids"
                 />
               </div>
               <div className="text-[10px]">
