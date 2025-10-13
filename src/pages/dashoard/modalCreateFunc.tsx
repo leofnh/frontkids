@@ -77,28 +77,28 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
       overlayClassName="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
     >
       {/* Modal Container com Scroll */}
-      <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6">
-        <div className="relative w-full max-w-md max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="relative w-full max-w-md max-h-[90vh] animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300 flex flex-col">
           {/* Modal Content */}
-          <div className="bg-white rounded-2xl border border-brand-200 shadow-2xl shadow-brand-900/10 animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="bg-white rounded-2xl border border-brand-200 shadow-2xl shadow-brand-900/10 overflow-hidden flex flex-col max-h-full">
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-brand-50 to-brown-50 px-6 py-5 border-b border-brand-200 rounded-t-2xl">
+            <div className="relative bg-gradient-to-br from-brand-50 to-brown-50 px-4 sm:px-6 py-4 sm:py-5 border-b border-brand-200 rounded-t-2xl flex-shrink-0">
               <button
                 onClick={closeModal}
-                className="absolute right-4 top-4 p-2 rounded-full bg-white/80 hover:bg-white border border-brand-200 text-brown-600 hover:text-brown-800 transition-all duration-200 hover:scale-105"
+                className="absolute right-3 sm:right-4 top-3 sm:top-4 p-2 rounded-full bg-white/80 hover:bg-white border border-brand-200 text-brown-600 hover:text-brown-800 transition-all duration-200 hover:scale-105"
               >
                 <X size="18" />
               </button>
 
-              <div className="flex items-center gap-4 pr-12">
-                <div className="p-3 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl shadow-lg">
-                  <UserPlus size="24" className="text-white" />
+              <div className="flex items-center gap-3 sm:gap-4 pr-10 sm:pr-12">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl shadow-lg">
+                  <UserPlus size="20" className="text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-brown-800">
+                  <h2 className="text-lg sm:text-xl font-bold text-brown-800">
                     {titleModal}
                   </h2>
-                  <p className="text-sm text-brown-600 mt-1">
+                  <p className="text-xs sm:text-sm text-brown-600 mt-1">
                     {descriptionModal}
                   </p>
                 </div>
@@ -106,9 +106,9 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
             </div>
 
             {/* Scrollable Form Content */}
-            <div className="overflow-y-auto max-h-[calc(90vh-140px)] scrollbar-thin scrollbar-thumb-brand-400 scrollbar-track-gray-100 hover:scrollbar-thumb-brand-500">
+            <div className="flex-1 overflow-y-auto">
               <form
-                className="p-6 space-y-6"
+                className="p-4 sm:p-6 space-y-4 sm:space-y-6"
                 onSubmit={handleCadastroSubmit(onSubmitCadastro)}
               >
                 {/* Hidden cargo field */}
@@ -209,10 +209,10 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
                 </div>
 
                 {/* Info Box */}
-                <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
+                <div className="bg-brand-50 border border-brand-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-start gap-3">
                     <CheckCircle
-                      size="20"
+                      size="18"
                       className="text-brand-600 mt-0.5 flex-shrink-0"
                     />
                     <div>
@@ -233,23 +233,23 @@ export const ModalCreateFunc: React.FC<iModalCreateUser> = ({
             </div>
 
             {/* Fixed Footer */}
-            <div className="bg-gray-50 border-t border-brand-200 px-6 py-4 rounded-b-2xl">
+            <div className="bg-gray-50 border-t border-brand-200 px-4 sm:px-6 py-3 sm:py-4 rounded-b-2xl flex-shrink-0">
               <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                 <Button
                   type="button"
                   onClick={closeModal}
-                  className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  <X size="18" className="mr-2" />
+                  <X size="16" />
                   Cancelar
                 </Button>
 
                 <Button
                   type="submit"
                   onClick={handleCadastroSubmit(onSubmitCadastro)}
-                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white rounded-xl font-medium shadow-lg hover:shadow-brand-500/25 transition-all duration-200 hover:scale-[1.02]"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white rounded-xl font-medium shadow-lg hover:shadow-brand-500/25 transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  <UserPlus size="18" className="mr-2" />
+                  <UserPlus size="16" />
                   Criar Vendedor
                 </Button>
               </div>

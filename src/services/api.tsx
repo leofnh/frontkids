@@ -16,7 +16,6 @@ if (window.location.origin.includes("localhost:5173")) {
 } else {
   BASE_URL = "https://api.paulakids.aelsistemas.com/";
 }
-
 export const api = axios.create({
   baseURL: BASE_URL,
 });

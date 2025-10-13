@@ -743,7 +743,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
           }}
         >
           <div className="text-center space-y-1">
-            <h2 className="font-bold bg-gray-100 text-[10px]">Paula Kids</h2>
+            <h2 className="font-bold bg-gray-100 text-[12px]">Paula Kids</h2>
             <div className="space-x-2 flex">
               <div className="w-[64px]">
                 <img
@@ -752,7 +752,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                   alt="Paula Kids"
                 />
               </div>
-              <div className="text-[10px]">
+              <div className="text-[12px]">
                 <p>Rua Getulio Vargas 48 - Centro</p>
                 <p>35995-000 S.Domingos Prata - MG</p>
                 <p>30.393.198/0001-81</p>
@@ -760,14 +760,14 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </div>
             </div>
 
-            <div className="my-2 text-[10px]">
-              <p className="font-bold bg-gray-300 text-[10px]">
+            <div className="my-2 text-[12px]">
+              <p className="font-bold bg-gray-300 text-[12px]">
                 DOCUMENTO AUXILIAR DE VENDA
               </p>
-              <p className="font-bold bg-gray-300 text-[10px]">
+              <p className="font-bold bg-gray-300 text-[12px]">
                 NÃO POSSUI VALIDADE FISCAL
               </p>
-              <p className="flex jsutify-between mt-2">
+              <p className="flex justify-between mt-2">
                 <span>Emissão:</span>
                 <span className="ml-auto">{today}</span>
               </p>
@@ -781,7 +781,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </p>
 
               {forma === "crediario" && (
-                <p className="flex jsutify-between">
+                <p className="flex justify-between">
                   <span>Cliente</span>
                   <span className="ml-auto">{nameClient}</span>
                 </p>
@@ -790,10 +790,10 @@ export const CardCaixaFinish: React.FC<iCard> = ({
 
             <hr className="my-2 border-dashed border-t-2" />
 
-            <p className="font-bold bg-gray-300 text-[10px]">
+            <p className="font-bold bg-gray-300 text-[12px]">
               Dados do Cliente
             </p>
-            <div className="flex text-[10px]">
+            <div className="flex text-[12px]">
               <span>Consumidor:</span>
               <span className="ml-auto">
                 {forma === "crediario" ? (
@@ -804,7 +804,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </span>
             </div>
 
-            <div className="flex text-[10px]">
+            <div className="flex text-[12px]">
               <span>Contato</span>
               <span className="ml-auto">{contatoClient}</span>
             </div>
@@ -816,7 +816,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
             </p>
 
             {/* Cabeçalho da tabela */}
-            <div className="grid grid-cols-4 gap-1 text-[10px] font-semibold border-b border-dashed pb-1">
+            <div className="grid grid-cols-4 gap-1 text-[12px] font-semibold border-b border-dashed pb-1">
               <span className="text-left">Produto</span>
               <span className="text-center">Ref.</span>
               <span className="text-center">Qtde</span>
@@ -829,7 +829,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                 (item, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-4 gap-1 text-[10px] py-0.5"
+                    className="grid grid-cols-4 gap-1 text-[12px] py-0.5"
                   >
                     <span className="text-left truncate" title={item.produto}>
                       {item.produto}
@@ -846,7 +846,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               )}
             </div>
 
-            <div className="flex justify-between font-bold text-[10px]">
+            <div className="flex justify-between font-bold text-[12px]">
               <span>Total a Pagar</span>
               <span>
                 {forma === "dinheiro" || forma === "pix" || forma === "debito"
@@ -874,19 +874,19 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </>
             )}
             <hr className="my-2 border-dashed border-t-2" />
-            <p className="font-bold mt-2 bg-gray-100 text-[10px]">
+            <p className="font-bold mt-2 bg-gray-100 text-[12px]">
               Detalhamento
             </p>
-            <div className="space-y-1 text-[10px]">
+            <div className="space-y-1 text-[12px]">
               <div className="flex justify-between">
                 <span>Forma</span>
                 <span>{forma}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-[12px]">
                 <span>Valor Bruto</span>
                 <span>{formatedMoney(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-[12px]">
                 <span>Desconto</span>
                 <span>
                   {forma === "dinheiro" || forma === "pix" || forma === "debito"
@@ -894,7 +894,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     : "0,00%"}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-[12px]">
                 <span className="truncate max-w-[60%]">Valor com desconto</span>
                 <span>
                   {forma === "dinheiro" || forma === "pix" || forma == "debito"
@@ -902,7 +902,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     : formatedMoney(subtotal)}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-[12px]">
                 <span>Troco</span>
                 <span>R$ {formatedMoney(troco) || "0,00"}</span>
               </div>
