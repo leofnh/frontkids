@@ -171,7 +171,7 @@ export const CardSearchCode: React.FC<iCard> = ({
   }, [setCondicional]);
 
   return (
-    <Card className="bg-white border-brand-200 shadow-sm">
+    <Card className="bg-white border-brand-200 shadow-sm text-center">
       <CardHeader className="bg-gradient-to-r from-brand-50 to-brown-50 border-b border-brand-200">
         <CardTitle className="text-xl font-semibold text-brown-800">
           {title}

@@ -42,7 +42,7 @@ export function Caixa() {
             toastClassName="!bg-white !text-brown-800 border"
           />
 
-          <div className="mb-6">
+          <div className="mb-6 text-center">
             <h1 className="text-2xl font-semibold text-brown-800 mb-1">
               Ponto de Venda (PDV)
             </h1>

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
+import "../../styles/print.css";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -479,7 +480,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
 
   return (
     <>
-      <Card className="bg-white border-brand-200 shadow-sm">
+      <Card className="bg-white border-brand-200 shadow-sm text-center">
         <CardHeader className="bg-gradient-to-r from-brand-50 to-brown-50 border-b border-brand-200">
           <CardTitle className="text-xl font-semibold text-brown-800">
             {title}
@@ -730,32 +731,27 @@ export const CardCaixaFinish: React.FC<iCard> = ({
         closeModal={isOpenConfirm}
         finish={handleSubmit(onSubmit2)}
       />
-      
+
       {/* Impressão do cupom */}
       <div className="hidden">
         <Button onClick={handleToast}>Imprimir!</Button>
         <div
           ref={contentRef}
-          className="w-[58mm] p-2 text-black bg-white text-[10px]"
-          style={{
-            fontFamily: "monospace",
-            margin: "auto",
-            width: "70mm",
-          }}
+          className="print-cupom text-black bg-white text-[12px] print:text-[12px]"
         >
           <div className="text-center space-y-1">
-            <h2 className="font-bold bg-gray-100 text-[10px]">
+            <h2 className="font-bold bg-gray-100 text-[12px] print:text-[12px]">
               Paula Kids
             </h2>
-            <div className="space-x-2 flex">
-              <div className="w-[64px]">
+            <div className="flex items-start gap-3 print:flex print:items-start print:gap-3 mt-2">
+              <div className="flex-shrink-0 print:flex-shrink-0">
                 <img
                   src="https://i.imgur.com/1gjHoAF.png"
-                  className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
+                  className="h-12 w-12 print:h-12 print:w-12 rounded-full object-cover"
                   alt="Paula Kids"
                 />
               </div>
-              <div className="text-[10px]">
+              <div className="text-[12px] print:text-[12px] text-left">
                 <p>Rua Getulio Vargas 48 - Centro</p>
                 <p>35995-000 S.Domingos Prata - MG</p>
                 <p>30.393.198/0001-81</p>
@@ -763,11 +759,11 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </div>
             </div>
 
-            <div className="my-2 text-[10px]">
-              <p className="font-bold bg-gray-300 text-[10px]">
+            <div className="my-2 text-[12px] print:text-[12px]">
+              <p className="font-bold bg-gray-300 text-[12px] print:text-[12px]">
                 DOCUMENTO AUXILIAR DE VENDA
               </p>
-              <p className="font-bold bg-gray-300 text-[10px]">
+              <p className="font-bold bg-gray-300 text-[12px] print:text-[12px]">
                 NÃO POSSUI VALIDADE FISCAL
               </p>
               <p className="flex jsutify-between mt-2">
@@ -793,10 +789,10 @@ export const CardCaixaFinish: React.FC<iCard> = ({
 
             <hr className="my-2 border-dashed border-t-2" />
 
-            <p className="font-bold bg-gray-300 text-[10px]">
+            <p className="font-bold bg-gray-300 text-[12px] print:text-[12px]">
               Dados do Cliente
             </p>
-            <div className="flex text-[10px]">
+            <div className="flex text-[12px] print:text-[12px]">
               <span>Consumidor:</span>
               <span className="ml-auto">
                 {forma === "crediario" ? (
@@ -807,23 +803,23 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </span>
             </div>
 
-            <div className="flex text-[10px]">
+            <div className="flex text-[12px] print:text-[12px]">
               <span>Contato</span>
               <span className="ml-auto">{contatoClient}</span>
             </div>
 
             <hr className="my-2 border-dashed border-t-2" />
 
-            <p className="font-bold bg-gray-300 text-[10px]">
+            <p className="font-bold bg-gray-300 text-[12px] print:text-[12px]">
               Relação dos Produtos
             </p>
 
             {/* Cabeçalho da tabela */}
-            <div className="grid grid-cols-4 gap-1 text-[10px] font-semibold border-b border-dashed pb-1">
-              <span className="text-left">Produto</span>
-              <span className="text-center">Ref.</span>
-              <span className="text-center">Qtde</span>
-              <span className="text-right">Valor</span>
+            <div className="grid grid-cols-4 gap-1 text-[12px] print:text-[12px] font-semibold border-b border-dashed pb-1">
+              <span className="text-left w-[35%]">Produto</span>
+              <span className="text-center w-[20%]">Ref.</span>
+              <span className="text-center w-[15%]">Qtde</span>
+              <span className="text-right w-[30%]">Valor</span>
             </div>
 
             {/* Linhas da tabela */}
@@ -832,16 +828,22 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                 (item, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-4 gap-1 text-[10px] py-0.5"
+                    className="grid grid-cols-4 gap-1 text-[12px] print:text-[12px] py-0.5"
                   >
-                    <span className="text-left truncate" title={item.produto}>
+                    <span
+                      className="text-left truncate w-[35%]"
+                      title={item.produto}
+                    >
                       {item.produto}
                     </span>
-                    <span className="text-center truncate" title={item.ref}>
+                    <span
+                      className="text-center truncate w-[20%]"
+                      title={item.ref}
+                    >
                       {item.ref}
                     </span>
-                    <span className="text-center">{item.qtde}</span>
-                    <span className="text-right whitespace-nowrap">
+                    <span className="text-center w-[15%]">{item.qtde}</span>
+                    <span className="text-right whitespace-nowrap w-[30%]">
                       R${item.preco}
                     </span>
                   </div>
@@ -849,7 +851,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               )}
             </div>
 
-            <div className="flex justify-between font-bold text-[10px]">
+            <div className="flex justify-between font-bold text-[12px] print:text-[12px]">
               <span>Total a Pagar</span>
               <span>
                 {forma === "dinheiro" || forma === "pix" || forma === "debito"
@@ -877,19 +879,19 @@ export const CardCaixaFinish: React.FC<iCard> = ({
               </>
             )}
             <hr className="my-2 border-dashed border-t-2" />
-            <p className="font-bold mt-2 bg-gray-100 text-[10px]">
+            <p className="font-bold mt-2 bg-gray-100 text-[12px] print:text-[12px]">
               Detalhamento
             </p>
-            <div className="space-y-1 text-[10px]">
+            <div className="space-y-1 text-[12px] print:text-[12px]">
               <div className="flex justify-between">
                 <span>Forma</span>
                 <span>{forma}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between">
                 <span>Valor Bruto</span>
                 <span>{formatedMoney(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between">
                 <span>Desconto</span>
                 <span>
                   {forma === "dinheiro" || forma === "pix" || forma === "debito"
@@ -897,7 +899,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     : "0,00%"}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between">
                 <span className="truncate max-w-[60%]">Valor com desconto</span>
                 <span>
                   {forma === "dinheiro" || forma === "pix" || forma == "debito"
@@ -905,7 +907,7 @@ export const CardCaixaFinish: React.FC<iCard> = ({
                     : formatedMoney(subtotal)}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between">
                 <span>Troco</span>
                 <span>R$ {formatedMoney(troco) || "0,00"}</span>
               </div>
